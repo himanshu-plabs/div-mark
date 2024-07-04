@@ -28,7 +28,7 @@ const BookmarkSearch: React.FC = () => {
           placeholder="Enter tags separated by commas"
           className="w-full p-2 border rounded-md mb-4"
         />
-        <Button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md">
+        <Button type="submit" className="">
           Search
         </Button>
       </form>
