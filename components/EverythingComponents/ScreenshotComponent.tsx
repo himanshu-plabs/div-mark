@@ -8,14 +8,16 @@ import Image from "next/image";
 import { GenerateTags } from "@/app/Tags/actions";
 
 // Define types for the responses
-type ScreenshotResponse = { screenshot: string };
+type ScreenshotResponse = { screenshot?: string | undefined; html?: string | undefined; error?: string | undefined; };
 type ErrorResponse = { error: string };
 
 export default function ScreenshotComponent() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<{
     screenshot?: string;
+    html?: string;
     tags?: string[];
+    title?: string;
     error?: string;
   } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -27,13 +29,13 @@ export default function ScreenshotComponent() {
     setResult(null);
 
     try {
-      // Take the screenshot
+      // Get HTML content and screenshot
       const screenshotRes: ScreenshotResponse | ErrorResponse = await TakeScreenshot(url);
 
       if ("error" in screenshotRes) {
         setResult({ error: screenshotRes.error });
       } else {
-        setResult({ screenshot: screenshotRes.screenshot });
+        setResult({ screenshot: screenshotRes.screenshot, html: screenshotRes.html });
       }
     } catch (error) {
       setResult({ error: (error as Error).message });
@@ -43,22 +45,23 @@ export default function ScreenshotComponent() {
   };
 
   const handleGenerateTags = async () => {
-    if (!result?.screenshot) return;
+    if (!result?.html) return;
 
     setTagsLoading(true);
 
     try {
       // Generate tags
-      const tagsRes: { tags: string[] } | ErrorResponse = await GenerateTags(`data:image/png;base64,${result.screenshot}`);
+      const tagsRes: { tags: string[]; title: string } | ErrorResponse = await GenerateTags(result.html);
 
-      setResult((prevResult) => ({ ...prevResult, tags: tagsRes.tags }));
+      
+        setResult((prevResult) => ({ ...prevResult, tags: tagsRes.tags, title: tagsRes.title }));
+     
     } catch (error) {
       setResult((prevResult) => ({ ...prevResult, error: (error as Error).message }));
     } finally {
       setTagsLoading(false);
     }
   };
-    console.log(result)
 
   return (
     <div>
@@ -70,7 +73,7 @@ export default function ScreenshotComponent() {
           placeholder="Enter URL"
         />
         <Button type="submit" disabled={loading}>
-          {loading ? "Loading..." : "Take Screenshot"}
+          {loading ? "Loading..." : "Fetch HTML"}
         </Button>
       </form>
       {result?.error && <p>Error: {result.error}</p>}
@@ -89,6 +92,7 @@ export default function ScreenshotComponent() {
           </Button>
           {result.tags && (
             <div>
+              <p>Title: {result.title}</p>
               <p>Tags:</p>
               {result.tags.map((tag, index) => (
                 <div key={index}>{tag}</div>

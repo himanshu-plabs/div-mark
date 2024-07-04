@@ -3,19 +3,19 @@
 
 import puppeteer from 'puppeteer';
 
-export async function TakeScreenshot(url: string): Promise<{ screenshot: string } | { error: string }> {
-  if (!url) {
-    return { error: 'URL is required' };
-  }
-
+export const TakeScreenshot = async (url: string): Promise<{ screenshot?: string; html?: string; error?: string }> => {
   try {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });
+
     const screenshot = await page.screenshot({ encoding: 'base64' });
+    const html = await page.content();
+
     await browser.close();
-    return { screenshot: screenshot as string };
+
+    return { screenshot, html };
   } catch (error) {
-    return { error: (error as Error).message };
+    return { error: (error as Error).message  };
   }
-}
+};
