@@ -12,7 +12,7 @@ async function SearchBookmarks(tagsToSearch: string) {
       OR: [
         {
           tags: {
-            has: tagsToSearch,
+            contains: tagsToSearch,
           },
         },
         {

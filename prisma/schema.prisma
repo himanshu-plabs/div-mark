@@ -52,7 +52,7 @@ model Account {
 
 model Folder {
   id        Int       @id @default(autoincrement())
-  name      String
+  name      String    @unique
   createdAt DateTime  @default(now())
   bookmarks Bookmark[]
 }
@@ -61,7 +61,8 @@ model Bookmark {
   id        Int      @id @default(autoincrement())
   title     String?
   text      String
-  tags      String[]
+  screenshot String?
+  tags      String
   createdAt DateTime @default(now())
   folderId  Int?
   folder    Folder?  @relation(fields: [folderId], references: [id])

@@ -73,9 +73,9 @@ import { z } from "zod";
 export const GenerateTags = async (html: string) => {
   const result = await generateObject({
     model: openai("gpt-4-turbo"),
-    prompt: `Analyze the following HTML content to generate a comprehensive list of relevant tags, along with a concise title that accurately describes the content. The title should be no more than three words. Ensure the tags cover key elements,  actions they might want to take in the future.Ensure the tags cover key elements and dont miss the name of the wesite of the title of the website in the tags focus on search usability. Also, consider potential search terms a user might use to find this content in a bookmark manager.\n\nHTML:\n${html}`,
+    prompt: `Analyze the following HTML content to generate a comprehensive list of relevant tags, along with a concise title that accurately describes the content. The title should be no more than three words. Ensure the tags cover key elements,  actions they might want to take in the future.Ensure the tags cover key elements and dont miss the name of the wesite of the title of the website in the tags focus on search usability.Don't consider 'HTML' as a tag or html dont cosider these both keywords. Also, consider potential search terms a user might use to find this content in a bookmark manager.\n\nHTML:\n${html}`,
     schema: z.object({
-      tags: z.array(z.string()),
+      tags: z.string(),
       title: z.string(),
     }),
   });

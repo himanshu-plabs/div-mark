@@ -16,6 +16,8 @@ export const TakeScreenshot = async (url: string): Promise<{ screenshot?: string
 
     return { screenshot, html };
   } catch (error) {
+    console.log(error);
     return { error: (error as Error).message  };
+
   }
 };

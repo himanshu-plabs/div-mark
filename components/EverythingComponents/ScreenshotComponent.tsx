@@ -6,6 +6,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import { GenerateTags } from "@/app/Tags/actions";
+import CreateBookmark from "@/actions/CreateBookmark";
 
 // Define types for the responses
 type ScreenshotResponse = { screenshot?: string | undefined; html?: string | undefined; error?: string | undefined; };
@@ -16,12 +17,14 @@ export default function ScreenshotComponent() {
   const [result, setResult] = useState<{
     screenshot?: string;
     html?: string;
-    tags?: string[];
+    tags?: string;
     title?: string;
     error?: string;
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [tagsLoading, setTagsLoading] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +34,7 @@ export default function ScreenshotComponent() {
     try {
       // Get HTML content and screenshot
       const screenshotRes: ScreenshotResponse | ErrorResponse = await TakeScreenshot(url);
+      
 
       if ("error" in screenshotRes) {
         setResult({ error: screenshotRes.error });
@@ -44,6 +48,18 @@ export default function ScreenshotComponent() {
     }
   };
 
+  const saveBookmark = async() => {
+    setBookmarkLoading(true);
+    try {
+      await CreateBookmark(url);
+      console.log(`Bookmark saved`);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setBookmarkLoading(false);
+    }
+  }
+  
   const handleGenerateTags = async () => {
     if (!result?.html) return;
 
@@ -51,7 +67,7 @@ export default function ScreenshotComponent() {
 
     try {
       // Generate tags
-      const tagsRes: { tags: string[]; title: string } | ErrorResponse = await GenerateTags(result.html);
+      const tagsRes: { tags: string; title: string } | ErrorResponse = await GenerateTags(result.html);
 
       
         setResult((prevResult) => ({ ...prevResult, tags: tagsRes.tags, title: tagsRes.title }));
@@ -90,13 +106,12 @@ export default function ScreenshotComponent() {
           <Button onClick={handleGenerateTags} disabled={tagsLoading}>
             {tagsLoading ? "Generating Tags..." : "Generate Tags"}
           </Button>
+          <Button onClick={saveBookmark} disabled={bookmarkLoading}>{bookmarkLoading ? "Saving Bookmark..." : "Save Bookmark"}</Button>
           {result.tags && (
             <div>
               <p>Title: {result.title}</p>
-              <p>Tags:</p>
-              {result.tags.map((tag, index) => (
-                <div key={index}>{tag}</div>
-              ))}
+              <p>Tags:{result.tags}</p>
+              
             </div>
           )}
         </div>

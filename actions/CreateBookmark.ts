@@ -1,17 +1,71 @@
 "use server";
 import { db } from "@/lib/db";
 import React from "react";
+import { TakeScreenshot } from "./Screenshot";
+import { GenerateTags } from "@/app/Tags/actions";
+import { fetchAllFoldersWithTags } from "./fetchAllFolderWithTags";
+import { findSuitableFolder } from "./findSuitableFolder";
 
 type CreateBookmarkProps = {
-  Tags: string[];
-  text: string;
+  url: string;
 };
-const CreateBookmark = async ({ Tags, text }: CreateBookmarkProps) => {
+type ScreenshotResponse = {
+  screenshot?: string;
+  html?: string;
+  error?: string | undefined;
+};
+type ErrorResponse = { error: string };
+
+const CreateBookmark = async ( url :string) => {
   try {
+    const screenshotRes: ScreenshotResponse = await TakeScreenshot(url);
+    const screenshot = screenshotRes.screenshot;
+    const html = screenshotRes.html;
+    const screenshoterror = screenshotRes.error;
+    if (screenshoterror) {
+      return screenshoterror;
+    }
+    if (!html) {
+      return { message: "html is required" };
+    }
+    const tagsRes = await GenerateTags(html);
+    const tags = tagsRes.tags;
+    const title = tagsRes.title;
+
+    const folders = await fetchAllFoldersWithTags();
+
+  const suitableFolderName = await findSuitableFolder(folders, tags);
+
+  let folder;
+  if (suitableFolderName) {
+    // Use the suitable folder
+    folder = await db.folder.findFirst({
+      where: { name: suitableFolderName },
+    });
+  }
+  
+   
+    if (!folder) {
+      await db.bookmark.create({
+        data: {
+          title,
+          text: url,
+          tags,
+          screenshot,
+        },
+      });
+    
+    return { message: "folder not found so bookmark created successfully without connecting to any folder" };
+  }
+
+
     await db.bookmark.create({
       data: {
-        text: text,
-        tags: Tags,
+        title,
+        text: url,
+        tags,
+        screenshot,
+        folderId: folder.id,
       },
     });
     console.log("success");
