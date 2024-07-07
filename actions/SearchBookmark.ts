@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 async function SearchBookmarks(tagsToSearch: string) {
   // Split the input string into an array of tags
 
-  const tagsArray = tagsToSearch.split(",").map((tag) => tag.trim());
+  // const tagsArray = tagsToSearch.split(",").map((tag) => tag.trim());
 
   // Fetch all bookmarks
   const bookmarks = await db.bookmark.findMany({
@@ -13,6 +13,7 @@ async function SearchBookmarks(tagsToSearch: string) {
         {
           tags: {
             contains: tagsToSearch,
+            mode: "insensitive"
           },
         },
         {
