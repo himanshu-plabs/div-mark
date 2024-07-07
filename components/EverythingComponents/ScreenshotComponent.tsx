@@ -9,7 +9,11 @@ import { GenerateTags } from "@/app/Tags/actions";
 import CreateBookmark from "@/actions/CreateBookmark";
 
 // Define types for the responses
-type ScreenshotResponse = { screenshot?: string | undefined; html?: string | undefined; error?: string | undefined; };
+type ScreenshotResponse = {
+  screenshot?: string | undefined;
+  html?: string | undefined;
+  error?: string | undefined;
+};
 type ErrorResponse = { error: string };
 
 export default function ScreenshotComponent() {
@@ -25,7 +29,6 @@ export default function ScreenshotComponent() {
   const [tagsLoading, setTagsLoading] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -33,13 +36,16 @@ export default function ScreenshotComponent() {
 
     try {
       // Get HTML content and screenshot
-      const screenshotRes: ScreenshotResponse | ErrorResponse = await TakeScreenshot(url);
-      
+      const screenshotRes: ScreenshotResponse | ErrorResponse =
+        await TakeScreenshot(url);
 
       if ("error" in screenshotRes) {
         setResult({ error: screenshotRes.error });
       } else {
-        setResult({ screenshot: screenshotRes.screenshot, html: screenshotRes.html });
+        setResult({
+          screenshot: screenshotRes.screenshot,
+          html: screenshotRes.html,
+        });
       }
     } catch (error) {
       setResult({ error: (error as Error).message });
@@ -48,18 +54,18 @@ export default function ScreenshotComponent() {
     }
   };
 
-  const saveBookmark = async() => {
+  const saveBookmark = async () => {
     setBookmarkLoading(true);
     try {
-      await CreateBookmark(url);
+      await CreateBookmark({url});
       console.log(`Bookmark saved`);
     } catch (error) {
       console.log(error);
     } finally {
       setBookmarkLoading(false);
     }
-  }
-  
+  };
+
   const handleGenerateTags = async () => {
     if (!result?.html) return;
 
@@ -67,13 +73,19 @@ export default function ScreenshotComponent() {
 
     try {
       // Generate tags
-      const tagsRes: { tags: string; title: string } | ErrorResponse = await GenerateTags(result.html);
+      const tagsRes: { tags: string; title: string } | ErrorResponse =
+        await GenerateTags(result.html);
 
-      
-        setResult((prevResult) => ({ ...prevResult, tags: tagsRes.tags, title: tagsRes.title }));
-     
+      setResult((prevResult) => ({
+        ...prevResult,
+        tags: tagsRes.tags,
+        title: tagsRes.title,
+      }));
     } catch (error) {
-      setResult((prevResult) => ({ ...prevResult, error: (error as Error).message }));
+      setResult((prevResult) => ({
+        ...prevResult,
+        error: (error as Error).message,
+      }));
     } finally {
       setTagsLoading(false);
     }
@@ -106,12 +118,13 @@ export default function ScreenshotComponent() {
           <Button onClick={handleGenerateTags} disabled={tagsLoading}>
             {tagsLoading ? "Generating Tags..." : "Generate Tags"}
           </Button>
-          <Button onClick={saveBookmark} disabled={bookmarkLoading}>{bookmarkLoading ? "Saving Bookmark..." : "Save Bookmark"}</Button>
+          <Button onClick={saveBookmark} disabled={bookmarkLoading}>
+            {bookmarkLoading ? "Saving Bookmark..." : "Save Bookmark"}
+          </Button>
           {result.tags && (
             <div>
               <p>Title: {result.title}</p>
               <p>Tags:{result.tags}</p>
-              
             </div>
           )}
         </div>

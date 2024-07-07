@@ -8,7 +8,10 @@ import { Button } from "../ui/button";
 
 export default function CreateFolderForm() {
   const [folderName, setFolderName] = useState("");
-  const [result, setResult] = useState<{ message?: string; error?: string } | null>(null);
+  const [result, setResult] = useState<{
+    message?: string;
+    error?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -1,22 +1,25 @@
 "use client";
 import React, { useState } from "react";
 import { Textarea } from "../ui/textarea";
-import { GenerateTags } from "../../app/Tags/actions";
 import { Button } from "../ui/button";
 import CreateBookmark from "@/actions/CreateBookmark";
+
 const BookmarkForm: React.FC = () => {
   const [text, setText] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle the form submission logic
-    const data = await GenerateTags(text);
-    console.log("Bookmark submitted:", text);
-    const Tags = data.tags;
-    await CreateBookmark({ Tags, text });
-    setTags(data.tags);
-    setText("");
+    setIsLoading(true); // Set loading state to true during submission
+    try {
+      // Handle the form submission logic
+      await CreateBookmark({ Text: text });
+      setText("");
+    } catch (error) {
+      console.error("Error creating bookmark:", error);
+    } finally {
+      setIsLoading(false); // Reset loading state after submission completes
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -36,8 +39,8 @@ const BookmarkForm: React.FC = () => {
         rows={4}
         className="w-full p-2 border rounded-md"
       />
-      <Button type="submit" className="mt-2">
-        Submit
+      <Button type="submit" className="mt-2" disabled={isLoading}>
+        {isLoading ? "Submitting..." : "Submit"}
       </Button>
     </form>
   );

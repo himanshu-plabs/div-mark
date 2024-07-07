@@ -3,8 +3,6 @@
 
 import { db } from "@/lib/db";
 
-
-
 export const CreateFolder = async (folderName: string) => {
   if (!folderName) {
     throw new Error("Folder name is required");

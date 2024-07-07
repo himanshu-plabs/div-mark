@@ -4,7 +4,6 @@
 // import { generateObject } from "ai";
 // import { z } from "zod";
 
-
 // export const generateFolderNames = async (tags: string) => {
 //   const prompt = `Generate a list of possible folder names based on the following tags. Ensure that the suggestions include broader aspects covered by the tags. Also, suggest names directly from the tags which are covering broader aspects:\n\nTags: ${tags}`;
 //   const result = await generateObject({
@@ -26,7 +25,7 @@
 //     const existingFolder = await db.folder.findFirst({
 //       where: {
 //         name: name,
-        
+
 //       },
 //     });
 
@@ -39,13 +38,12 @@
 //   const newFolder = await db.folder.create({
 //     data: {
 //       name: suggestedNames[0],
-      
+
 //     },
 //   });
 
 //   return newFolder;
 // };
-
 
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
@@ -54,7 +52,9 @@ import { z } from "zod";
 export const findSuitableFolder = async (folders: any[], newTags: string) => {
   const result = await generateObject({
     model: openai("gpt-4-turbo"),
-    prompt: `Here are the existing folders and their tags: ${JSON.stringify(folders)}. Here are the tags for a new bookmark: ${newTags}. Does this new bookmark fit into any of the existing folders? If yes, return the name of the folder, otherwise return false also check if that folders names matches with any of the tags in this if that tags can be classified as covering a broader topic so save it in that return that name.`,
+    prompt: `Here are the existing folders and their tags: ${JSON.stringify(
+      folders
+    )}. Here are the tags for a new bookmark: ${newTags}. Does this new bookmark fit into any of the existing folders? If yes, return the name of the folder, otherwise return false also check if that folders names matches with any of the tags in this if that tags can be classified as covering a broader topic so save it in that return that name.`,
     schema: z.object({
       folderName: z.union([z.string(), z.literal(false)]),
     }),

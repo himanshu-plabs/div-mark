@@ -1,9 +1,11 @@
-"use server"
+"use server";
 
 import { db } from "@/lib/db";
 
-
-export default async function CreateFolderAndAddBookmarks(folderName: string, bookmarkIds: number[]): Promise<any> {
+export default async function CreateFolderAndAddBookmarks(
+  folderName: string,
+  bookmarkIds: number[]
+): Promise<any> {
   try {
     const folder = await db.folder.create({
       data: {
@@ -22,7 +24,7 @@ export default async function CreateFolderAndAddBookmarks(folderName: string, bo
 
     return folder;
   } catch (error) {
-    console.error('Error creating folder and adding bookmarks:', error);
+    console.error("Error creating folder and adding bookmarks:", error);
     throw error;
   }
 }

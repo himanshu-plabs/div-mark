@@ -13,7 +13,7 @@ async function SearchBookmarks(tagsToSearch: string) {
         {
           tags: {
             contains: tagsToSearch,
-            mode: "insensitive"
+            mode: "insensitive",
           },
         },
         {
