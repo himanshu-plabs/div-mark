@@ -20,6 +20,7 @@ const config = {
     extend: {
       fontFamily: {
         nunito: ['var(--font-nunito)'],
+        satisfy: ['var(--font-satisfy)'],
       },
       colors: {
         border: "hsl(var(--border))",

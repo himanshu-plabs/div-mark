@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Nunito } from "next/font/google";
+import { Inter, Nunito,Satisfy } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
-const nunito = Nunito({subsets:['latin'], weight:['400','200','300','600'],variable : '--font-nunito'});
+const nunito = Nunito({ subsets: ['latin'], weight: ['400', '200', '300', '600'], variable: '--font-nunito' });
+const satisfy = Satisfy({subsets:['latin'], weight:['400'],variable : '--font-satisfy'});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${nunito.variable}`}>
+      <body className={`${nunito.variable} ${satisfy.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

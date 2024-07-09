@@ -11,8 +11,8 @@ const EveryBookmark = () => {
       <Navbar />
       <BookmarkSearch />
       <BookmarkForm />
-      <ScreenshotComponent />
-      <CreateFolderForm />
+      {/* <ScreenshotComponent />
+      <CreateFolderForm /> */}
     </div>
   );
 };

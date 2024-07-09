@@ -210,22 +210,23 @@ const BookmarkSearch: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className=" mx-auto pt-1 ">
       <form onSubmit={handleSearchSubmit} className="flex flex-col items-center">
         <div className="relative w-full mb-4">
           <input
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            placeholder="Enter tags separated by commas"
-            className="w-full h-10 px-3 text-base placeholder-gray-500 border-b-2 border-gray-300 focus:outline-none bg-transparent"
+            placeholder="Search my mind..."
+            className="w-full    placeholder-[#748297]   focus:outline-none bg-transparent font-satisfy text-6xl pl-[6px]  hover:placeholder-[#444c5c] text-[#748297] transition duration-300 ease-in-out "
           />
+          <div className=" w-full h-[1px] bg-[#36373a] mt-[15px] "></div>
           <div className="absolute bottom-0 left-0 w-full h-0.5 overflow-hidden">
             <div className="moving-highlight"></div>
           </div>
         </div>
-        <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+        {/* <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
           Search
-        </Button>
+        </Button> */}
       </form>
       <div className="mt-4">
         {results.length > 0 ? (
@@ -239,7 +240,7 @@ const BookmarkSearch: React.FC = () => {
             ))}
           </ul>
         ) : (
-          <p>No bookmarks found</p>
+          null
         )}
       </div>
       {results.length > 0 && (
