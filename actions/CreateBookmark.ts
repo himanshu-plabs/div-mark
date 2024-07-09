@@ -2,7 +2,7 @@
 import { db } from "@/lib/db";
 import React from "react";
 import { TakeScreenshot } from "./Screenshot";
-import { GenerateTags } from "@/app/Tags/actions";
+import { analyzeContentAndURL } from "@/app/Tags/actions";
 import { fetchAllFoldersWithTags } from "./fetchAllFolderWithTags";
 import { findSuitableFolder } from "./findSuitableFolder";
 import { findSuitableFolderForText } from "./findSuitableFolderForText";
@@ -67,7 +67,7 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
     if (!html) {
       return { message: "html is required" };
     }
-    const tagsRes = await GenerateTags(html);
+    const tagsRes = await analyzeContentAndURL(url, html);
     const tags = tagsRes.tags;
     const title = tagsRes.title;
 

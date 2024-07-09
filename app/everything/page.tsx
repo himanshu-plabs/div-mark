@@ -7,10 +7,10 @@ import React from "react";
 
 const EveryBookmark = () => {
   return (
-    <div>
+    <div className="bg-[#14161e]  min-h-screen px-[80px] ">
       <Navbar />
-      <BookmarkForm />
       <BookmarkSearch />
+      <BookmarkForm />
       <ScreenshotComponent />
       <CreateFolderForm />
     </div>

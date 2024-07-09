@@ -58,3 +58,37 @@
       @apply bg-background text-foreground;
     }
   }
+
+
+  /* @keyframes moveHighlight {
+    0% {
+      left: -100%;
+      transition-timing-function: cubic-bezier(0.8, 0, 0.2, 1);
+    }
+    50% {
+      left: 100%;
+      transition-timing-function: cubic-bezier(0.8, 0, 0.2, 1);
+    }
+    100% {
+      left:100%
+    }
+  }
+  
+  .moving-highlight {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background:  #3490dc;
+    animation: moveHighlight 3s infinite;
+  }
+  
+  input:hover + div .moving-highlight,
+  input:focus + div .moving-highlight {
+    animation-play-state: running;
+  }
+  
+  .moving-highlight {
+    animation-play-state: paused;
+  } */
+
+  /* // background: linear-gradient(90deg, transparent, #3490dc, transparent); */

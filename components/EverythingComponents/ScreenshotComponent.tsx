@@ -5,7 +5,7 @@ import { TakeScreenshot } from "@/actions/Screenshot";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { GenerateTags } from "@/app/Tags/actions";
+import { analyzeContentAndURL } from "@/app/Tags/actions";
 import CreateBookmark from "@/actions/CreateBookmark";
 
 // Define types for the responses
@@ -74,7 +74,7 @@ export default function ScreenshotComponent() {
     try {
       // Generate tags
       const tagsRes: { tags: string; title: string } | ErrorResponse =
-        await GenerateTags(result.html);
+      await analyzeContentAndURL(result.html,url);
 
       setResult((prevResult) => ({
         ...prevResult,
