@@ -73,7 +73,7 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
 
     const folders = await fetchAllFoldersWithTags();
 
-    const suitableFolderName = await findSuitableFolder(folders, tags);
+    const suitableFolderName = await findSuitableFolder(folders, tags,url);
 
     let folder;
     if (suitableFolderName) {

@@ -6,6 +6,8 @@ export const fetchAllFoldersWithTags = async () => {
       bookmarks: {
         select: {
           tags: true,
+          title: true,
+          text: true,
         },
       },
     },

@@ -27,7 +27,7 @@
 
 import puppeteer from "puppeteer";
 
-const MAX_HTML_LENGTH = 10000; // Adjust as needed
+const MAX_HTML_LENGTH = 3000; // Adjust as needed
 
 export const TakeScreenshot = async (
   url: string

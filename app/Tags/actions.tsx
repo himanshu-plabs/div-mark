@@ -177,7 +177,7 @@
 //   return result.object;
 // };
 
-
+'use server'
 import Groq from "groq-sdk";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -198,17 +198,23 @@ const schema: Record<string, unknown> = {
 
 export async function analyzeContentAndURL(url: string, html: string): Promise<Schema> {
   const prompt = `
+    Analyze the following HTML content and URL to generate relevant tags and a concise title. The content may be truncated.
     URL: ${url}
     HTML: ${html}
     Task:
-    1. Title: Create a concise title (max 3 words).
-    2. Tags: Generate relevant tags.
-
-    Guidelines:
-    - Use the website name, domain, main topics, key concepts, and user intents.
-    - Exclude 'HTML', 'http', 'https', 'www', or generic web terms.
-    - Prioritize main content over HTML structure.
-    - Provide a JSON object with the title and tags.
+    1. Title: Create a concise title (max 3 words) that accurately describes the main content.
+    2. Tags: Generate a comprehensive list of relevant tags. Consider:
+     - The website name and domain (extracted from the URL)
+     - Main topic and key concepts
+     - Potential user actions or intentions
+     - Search terms a user might use to find this content
+    3. Guidelines:
+     - Prioritize the main content over HTML structure or irrelevant page elements
+     - Don't include 'HTML', 'http', 'https', 'www','Google Search' or generic web terms as tags
+     - Focus searchable terms
+     - Include both broad categories and specific details
+     - Aim improve findability
+    Remember, the goal is to create tags that would help a user easily find and identify this bookmark in a large collection.
   `;
   const jsonSchema = JSON.stringify(schema, null, 4);
   const chat_completion = await groq.chat.completions.create({
@@ -222,7 +228,7 @@ export async function analyzeContentAndURL(url: string, html: string): Promise<S
         content: prompt,
       },
     ],
-    model: "llama3-8b-8192",
+    model: "llama3-70b-8192",
     temperature: 0,
     stream: false,
     response_format: { type: "json_object" },
@@ -235,16 +241,18 @@ export async function analyzeContentAndURL(url: string, html: string): Promise<S
   return result;
 }
 
-// Example usage
-// async function main() {
-//   const url = "https://console.groq.com/docs/models";
-//   const html = "<html><body>Example content</body></html>";
-//   try {
-//     const result = await analyzeContentAndURL(url, html);
-//     console.log(result); // { title: "Example Title", tags: "example, content, tag" }
-//   } catch (e) {
-//     console.error(e);
-//   }
-// }
+//Example usage
+export async function generatTags(url: string, html: string): Promise<Schema | undefined> {
+  // const url = "https://console.groq.com/docs/models";
+  // const html = "<html><body>Example content</body></html>";
+  try {
+    const result = await analyzeContentAndURL(url, html);
+    console.log(result); // { title: "Example Title", tags: "example, content, tag" }
+    return result;
+  } catch (e) {
+    console.error(e);
+    
+  }
+}
 
-//  main();
+

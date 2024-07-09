@@ -1,17 +1,62 @@
-import { openai } from "@ai-sdk/openai";
-import { generateObject } from "ai";
-import { z } from "zod";
+'use server';
 
-export const findSuitableFolderForText = async (folders: any[], text: string) => {
-  const result = await generateObject({
-    model: openai("gpt-3.5-turbo"),
-    prompt: `Here are the existing folders and their tags: ${JSON.stringify(
-      folders
-    )}. Here is the text for a new bookmark: ${text}. Does this new bookmark fit into any of the existing folders? If yes, return the name of the folder, otherwise return false, check correctly its not like if just one small thing matches and you give save it to that folder you should look at what the text trying to say and does it fit in any of the folder according to folders name and tags in that folder. Also, check if any of the folder names match the text in a way that covers a broader topic, and if so, return that name.`,
-    schema: z.object({
-      folderName: z.union([z.string(), z.literal(false)]),
-    }),
+import Groq from "groq-sdk";
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+// Define the schema interface
+interface FolderSchema {
+  folderName: string | false;
+}
+
+// Define the schema
+const folderSchema: Record<string, unknown> = {
+  properties: {
+    folderName: { type: ["string", "boolean"] },
+  },
+  required: ["folderName"],
+  type: "object",
+};
+
+// Function to find a suitable folder
+export const findSuitableFolderForText = async (folders: any[], text: string): Promise<string | false> => {
+  const prompt = `
+    Here are the existing folders and their tags: ${JSON.stringify(folders)}.
+    Here is the text for a new bookmark: ${text}.
+    Task: Determine if the new bookmark fits into any existing folder based on their tags and names.
+    Guidelines:
+    - Match the new bookmark to folders that broadly cover the relevant tags.
+    - Avoid assigning the bookmark to a folder based on a single minor match.
+    - Consider the broader topic that the text implies and see if it fits within any folder's scope.
+    - Check if the folder names themselves align with the new bookmark's text.
+    - Return the name of the matching folder or false if no appropriate folder is found.
+    - Ensure to prioritize accurate and relevant folder matching to maintain proper organization.
+  `;
+
+  const jsonSchema = JSON.stringify(folderSchema, null, 4);
+  
+  const chat_completion = await groq.chat.completions.create({
+    messages: [
+      {
+        role: "system",
+        content: `You are an intelligent assistant determining the appropriate folder for new bookmarks based on text and folder names. The JSON object must use the schema: ${jsonSchema}`,
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    model: "llama3-70b-8192", // Ensure you have the correct model name here
+    temperature: 0,
+    stream: false,
+    response_format: { type: "json_object" },
   });
 
-  return result.object.folderName;
-};
+  const content = chat_completion.choices[0].message.content;
+  if (!content) {
+    throw new Error("Received null or undefined content from chat completion");
+  }
+  
+  const result: FolderSchema = JSON.parse(content);
+  return result.folderName;
+}

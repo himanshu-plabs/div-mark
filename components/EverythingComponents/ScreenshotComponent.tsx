@@ -5,7 +5,7 @@ import { TakeScreenshot } from "@/actions/Screenshot";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { analyzeContentAndURL } from "@/app/Tags/actions";
+import { analyzeContentAndURL, generatTags } from "@/app/Tags/actions";
 import CreateBookmark from "@/actions/CreateBookmark";
 
 // Define types for the responses
@@ -73,13 +73,15 @@ export default function ScreenshotComponent() {
 
     try {
       // Generate tags
-      const tagsRes: { tags: string; title: string } | ErrorResponse =
-      await analyzeContentAndURL(result.html,url);
-
+      
+      const tagsRes: { tags: string; title: string; error?: string } | undefined = await generatTags(result.html,url);
+      if (!tagsRes) {
+        return {message: "No tags"}
+      }
       setResult((prevResult) => ({
         ...prevResult,
-        tags: tagsRes.tags,
-        title: tagsRes.title,
+        tags: tagsRes?.tags,
+        title: tagsRes?.title,
       }));
     } catch (error) {
       setResult((prevResult) => ({

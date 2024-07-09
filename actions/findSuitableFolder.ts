@@ -45,19 +45,75 @@
 //   return newFolder;
 // };
 
-import { openai } from "@ai-sdk/openai";
-import { generateObject } from "ai";
-import { z } from "zod";
+'use server';
 
-export const findSuitableFolder = async (folders: any[], newTags: string) => {
-  const result = await generateObject({
-    model: openai("gpt-3.5-turbo"),
-    prompt: `Here are the existing folders and their tags: ${JSON.stringify(
-      folders
-    )}. Here are the tags for a new bookmark: ${newTags}. Does this new bookmark fit into any of the existing folders? If yes, return the name of the folder, otherwise return false, check correctly its not like if just one small thing matches and you give save it to that folder you should look at what the tags are trying to say and does it fit in any of the folder according to folders name and tags in that folder. also check if that folders names matches with any of the tags in this if that tags can be classified as covering a broader topic so save it in that return that name.`,
-    schema: z.object({
-      folderName: z.union([z.string(), z.literal(false)]),
-    }),
-  });
-  return result.object.folderName;
+import Groq from "groq-sdk";
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+// Define the schema interface
+interface FolderSchema {
+  folderName: string | false;
+}
+
+// Define the schema
+const folderSchema: Record<string, unknown> = {
+  properties: {
+    folderName: { type: ["string", "boolean"] },
+  },
+  required: ["folderName"],
+  type: "object",
 };
+
+// Function to find a suitable folder
+export const findSuitableFolder = async (folders: any[], newTags: string,url:string): Promise<string | false> => {
+  const prompt = `
+    Here are the existing folders and their tags: ${JSON.stringify(folders)}.
+    Here are the tags for a new bookmark: ${newTags}.
+    Here is the URL for the new bookmark: ${url}
+    Task:
+    1. Determine if the new bookmark fits into any of the existing folders based on their tags and names.
+    2. If it fits, return the name of the folder. If not, return false.
+    3. If it doesn't fit return false, it's not necessary to return a folder name
+
+    Guidelines:
+    - Match the new bookmark to folders that broadly cover the relevant tags.
+    - Avoid assigning the bookmark to a folder based on a single minor match.
+    - Consider the broader topic that the tags imply and see if it fits within any folder's scope.
+    - Check if the folder names themselves align with the new bookmark's tags.
+    - Return the name of the matching folder or false if no appropriate folder is found.
+    - Ensure to prioritize accurate and relevant folder matching to maintain proper organization.
+    - Check if the URL matches the text in the existing folder or name of the existing folder not word to word but like main The website name and domain, dont consider 'https://www.' while checking (extracted from the ${url})
+    - in whichever folder most things match save the bookmark to that folder but remember if not much information matches return false
+    - dont match just because both are google search but get the context this was an example
+  `;
+  
+  const jsonSchema = JSON.stringify(folderSchema, null, 4);
+  
+  const chat_completion = await groq.chat.completions.create({
+    messages: [
+      {
+        role: "system",
+        content: `You are an intelligent assistant determining the appropriate folder for new bookmarks based on tags and folder names. The JSON object must use the schema: ${jsonSchema}`,
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    model: "llama3-70b-8192", // Ensure you have the correct model name here
+    temperature: 0,
+    stream: false,
+    response_format: { type: "json_object" },
+  });
+
+  const content = chat_completion.choices[0].message.content;
+  if (!content) {
+    throw new Error("Received null or undefined content from chat completion");
+  }
+  
+  const result: FolderSchema = JSON.parse(content);
+  return result.folderName;
+}
+
+// Example usage
