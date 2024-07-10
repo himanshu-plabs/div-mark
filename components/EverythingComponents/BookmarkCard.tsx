@@ -125,8 +125,8 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ screenshot, title, descript
           </div>
         </>
       ) : (
-        <div className="p-4 bg-[#1e1f2a] h-full flex flex-col justify-between rounded-md">
-          <p className="text-[#748297] mb-4 text-sm font-nunito ">{description}</p>
+        <div className="p-5 bg-[#1e1f2a] h-full flex flex-col justify-between rounded-md">
+          <p className="text-[#748297]  text-sm font-nunito ">{description}</p>
           {/* <h3 className="text-lg font-semibold truncate">{title || "Untitled"}</h3> */}
         </div>
       )}

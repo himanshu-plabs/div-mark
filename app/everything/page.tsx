@@ -108,20 +108,18 @@ const EveryBookmark = () => {
         {bookmarks.map((bookmark) => {
           const heightMultiplier = getRandomHeightMultiplier();
           return (
-            <div>
-              <div>
-                <BookmarkModal
-                  screenshot={bookmark.screenshot}
-                  text={bookmark.text}
-                  key={bookmark.id}
-                  folder={bookmark.folder}
-                  modal={modal}
-                  bookmarkId={bookmark.id}
-                  title={bookmark.title}
-                  tags={bookmark.tags}
-                  bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-                />
-              </div>
+            <div key={bookmark.id}>
+              <BookmarkModal
+                screenshot={bookmark.screenshot}
+                text={bookmark.text}
+                key={bookmark.id}
+                folder={bookmark.folder}
+                modal={modal}
+                bookmarkId={bookmark.id}
+                title={bookmark.title}
+                tags={bookmark.tags}
+                bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+              />
             </div>
           );
         })}
