@@ -3,8 +3,44 @@ import React, { useEffect, useRef, useState } from "react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import CreateBookmark from "@/actions/CreateBookmark";
+import { getAllBookmarks } from "@/actions/getAllBookmarks";
 
-const BookmarkForm: React.FC = () => {
+type UserRole = "ADMIN" | "USER";
+
+interface User {
+  id: string;
+  name: string | null;
+  email: string | null;
+  emailVerified: Date | null;
+  image: string | null;
+  role: UserRole;
+  password: string | null;
+}
+
+interface Folder {
+  id: number;
+  name: string;
+  createdAt: Date;
+}
+
+interface Bookmark {
+  id: number;
+  title: string | null;
+  text: string;
+  screenshot: string | null;
+  createdAt: Date;
+  folderId: number | null;
+  userId: string | null;
+  aspectRatio: number | null;
+  folder: Folder | null;
+  user: User | null;
+}
+type BookmarkCardProps = {
+  setBookmarks:React.Dispatch<React.SetStateAction<Bookmark[]>>
+}
+
+const BookmarkForm = ({ setBookmarks }:BookmarkCardProps
+ ) => {
   const [text, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -14,6 +50,8 @@ const BookmarkForm: React.FC = () => {
     try {
       // Handle the form submission logic
       await CreateBookmark({ Text: text });
+      const allBookmarks = await getAllBookmarks();
+      setBookmarks(allBookmarks)
       setText("");
     } catch (error) {
       console.error("Error creating bookmark:", error);
@@ -41,7 +79,7 @@ const BookmarkForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className=" font-nunito">
+    <form onSubmit={handleSubmit} className=" font-nunito mb-5">
       <div className="w-[232px] min-h-[200px] p-5 pt-[14px] rounded-md bg-[#1e1f2a] ">
         <label htmlFor="textarea" className="text-[#ff5924] text-xs tracking-widest " >ADD A NEW NOTE</label>
       <textarea

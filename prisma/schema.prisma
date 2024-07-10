@@ -68,4 +68,5 @@ model Bookmark {
   folder    Folder?  @relation(fields: [folderId], references: [id])
   userId    String?
   user      User?     @relation(fields: [userId], references: [id])
+  aspectRatio Int?
 }

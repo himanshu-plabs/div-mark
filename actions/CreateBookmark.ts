@@ -15,6 +15,7 @@ type ScreenshotResponse = {
   screenshot?: string;
   html?: string;
   error?: string | undefined;
+  aspectRatio?: number
 };
 type ErrorResponse = { error: string };
 
@@ -60,6 +61,7 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
     const screenshotRes: ScreenshotResponse = await TakeScreenshot(url);
     const screenshot = screenshotRes.screenshot;
     const html = screenshotRes.html;
+    const aspectRatio = screenshotRes.aspectRatio;
     const screenshoterror = screenshotRes.error;
     if (screenshoterror) {
       return screenshoterror;
@@ -75,24 +77,25 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
 
     const suitableFolderName = await findSuitableFolder(folders, tags,url);
 
-    let folder;
+    let Folder;
     if (suitableFolderName) {
       // Use the suitable folder
-      folder = await db.folder.findFirst({
+      Folder = await db.folder.findFirst({
         where: { name: suitableFolderName },
       });
     }
 
-    if (!folder) {
+    if (!Folder) {
       await db.bookmark.create({
         data: {
           title,
           text: url,
           tags,
           screenshot,
+          aspectRatio
         },
       });
-
+      console.log('folder not found so bookmark created successfully without connecting to any folder')
       return {
         message:
           "folder not found so bookmark created successfully without connecting to any folder",
@@ -105,7 +108,8 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
         text: url,
         tags,
         screenshot,
-        folderId: folder.id,
+        folderId: Folder.id,
+        aspectRatio
       },
     });
     console.log("success");

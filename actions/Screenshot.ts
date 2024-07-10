@@ -31,7 +31,7 @@ const MAX_HTML_LENGTH = 3000; // Adjust as needed
 
 export const TakeScreenshot = async (
   url: string
-): Promise<{ screenshot?: string; html?: string; error?: string }> => {
+): Promise<{ screenshot?: string; html?: string; error?: string; aspectRatio?: number }> => {
   let browser;
   try {
     browser = await puppeteer.launch();
@@ -48,8 +48,14 @@ export const TakeScreenshot = async (
     const limitedHtml = html.length > MAX_HTML_LENGTH 
       ? html.slice(0, MAX_HTML_LENGTH) + '...' 
       : html;
-
-    return { screenshot, html: limitedHtml };
+    
+      const { width, height } = await page.evaluate(() => {
+        const { clientWidth, clientHeight } = document.documentElement;
+        return { width: clientWidth, height: clientHeight };
+      });
+  
+      const aspectRatio = width / height;
+    return { screenshot, html: limitedHtml,aspectRatio };
   } catch (error) {
     console.error("Error in TakeScreenshot:", error);
     return { error: error instanceof Error ? error.message : String(error) };
