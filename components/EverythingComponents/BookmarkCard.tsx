@@ -94,17 +94,17 @@ interface BookmarkCardProps {
   screenshot: string | null;
   title: string | null;
   description: string;
+  heightMultiplier: number;
 }
 
 const getRandomHeightMultiplier = () => {
-  const multipliers = [1, 0.8, 1, 1,1.25,0.8, 1.5];
+  const multipliers = [1, 0.8, 1, 1.1,1.2,0.7, 1.3];
   return multipliers[Math.floor(Math.random() * multipliers.length)];
 };
 
-const BookmarkCard: React.FC<BookmarkCardProps> = ({ screenshot, title, description }) => {
+const BookmarkCard: React.FC<BookmarkCardProps> = ({ screenshot, title, description, heightMultiplier }) => {
   const width = 232; // Set a fixed width
   const baseHeight = 200;
-  const heightMultiplier = getRandomHeightMultiplier();
   const height = screenshot ? Math.floor(baseHeight * heightMultiplier) : undefined;
 
   return (

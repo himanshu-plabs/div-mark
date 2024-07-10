@@ -34,6 +34,7 @@ interface Bookmark {
   aspectRatio: number | null;
   folder: Folder | null;
   user: User | null;
+  tags: string ;
 }
 type BookmarkCardProps = {
   setBookmarks:React.Dispatch<React.SetStateAction<Bookmark[]>>

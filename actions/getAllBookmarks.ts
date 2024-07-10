@@ -11,6 +11,9 @@ export async function getAllBookmarks() {
         user: true,
         folder: true,
       },
+      orderBy: {
+        createdAt: 'desc' 
+      }
     });
 
     return allBookmarksWithUserAndFolder;

@@ -8,6 +8,7 @@ import Navbar from "@/components/EverythingComponents/Navbar";
 import { getAllBookmarks } from "@/actions/getAllBookmarks";
 import { Decimal } from "@prisma/client/runtime/library";
 import BookmarkCard from "@/components/EverythingComponents/BookmarkCard";
+import BookmarkModal from "@/components/EverythingComponents/BookmarkModal";
 
 // Define the types based on your Prisma schema
 type UserRole = "ADMIN" | "USER";
@@ -39,10 +40,11 @@ interface Bookmark {
   aspectRatio: number | null;
   folder: Folder | null;
   user: User | null;
+  tags: string;
 }
 
 const getRandomHeightMultiplier = () => {
-  const multipliers = [1, 1, 1.5, 1, 1.5, 1];
+  const multipliers = [1, 0.8, 1, 1.1, 1.2, 0.7, 1.3];
   return multipliers[Math.floor(Math.random() * multipliers.length)];
 };
 
@@ -51,6 +53,18 @@ const EveryBookmark = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [random, setRandom] = useState<number>(1);
+  const [bookmarkHeights, setBookmarkHeights] = useState<{
+    [key: number]: number;
+  }>({});
+  const [modal, setModal] = useState<boolean>(true);
+  useEffect(() => {
+    const newHeights = bookmarks.reduce((acc, bookmark) => {
+      acc[bookmark.id] = getRandomHeightMultiplier();
+      return acc;
+    }, {} as { [key: number]: number });
+
+    setBookmarkHeights(newHeights);
+  }, [bookmarks]); // This effect runs only when bookmarks change
 
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -94,12 +108,21 @@ const EveryBookmark = () => {
         {bookmarks.map((bookmark) => {
           const heightMultiplier = getRandomHeightMultiplier();
           return (
-            <BookmarkCard
-              key={bookmark.id}
-              screenshot={bookmark.screenshot}
-              title={bookmark.title}
-              description={bookmark.text}
-            />
+            <div>
+              <div>
+                <BookmarkModal
+                  screenshot={bookmark.screenshot}
+                  text={bookmark.text}
+                  key={bookmark.id}
+                  folder={bookmark.folder}
+                  modal={modal}
+                  bookmarkId={bookmark.id}
+                  title={bookmark.title}
+                  tags={bookmark.tags}
+                  bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+                />
+              </div>
+            </div>
           );
         })}
       </Masonry>
