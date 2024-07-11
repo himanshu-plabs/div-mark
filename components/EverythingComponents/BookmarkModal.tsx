@@ -46,14 +46,22 @@ const BookmarkModal = ({
           heightMultiplier={bookmarkHeights} // Default to 1 if not set
         />
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className=" w-[94%] h-[85%]  flex">
+        <div className="w-full">
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete your
+              account and remove your data from our servers.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+        <div className="w-[400px] border flex flex-col ">
+          <div className=" w-full h-[95px] font-nunito py-5 px-[27px] ">
+            <div className="text-[29px] font-light ">{title}</div>
+            <div>{text}</div>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
