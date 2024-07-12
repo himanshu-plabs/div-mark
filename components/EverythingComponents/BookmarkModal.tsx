@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,14 +12,16 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { addTag } from "@/actions/bookmarkActions";
-import { Plus, PlusCircle, X,Folder, Trash2 } from "lucide-react";
+import { Plus, X, Folder, Trash2, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DeleteTag } from "@/actions/DeleteTag";
-import {  addBookmarkToFolder, deleteBookmark } from "@/actions/addOrDeleteBookmark";
+import {
+  addBookmarkToFolder,
+  deleteBookmark,
+} from "@/actions/addOrDeleteBookmark";
 import { getFolders } from "@/actions/fetchAllFolderWithTags";
+import FolderSelector from "./FolderSelector";
 
-
-// ... (keep the existing interfaces and types)
 interface Folder {
   id: number;
   name: string;
@@ -54,25 +56,27 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     tags.split(",").map((tag: string) => tag.trim())
   );
   const [isAddingTag, setIsAddingTag] = useState<boolean>(false);
-  const [folders, setFolders] = useState<{
-    id: number;
-    name: string;
-}[]>([]);
-  const [selectedFolder, setSelectedFolder] = useState<number | null>(null);
+  const [folders, setFolders] = useState<
+    {
+      name: string;
+      id: number;
+    }[]
+  >([]);
+  const [showFolderSelector, setShowFolderSelector] = useState(false);
+  const folderSelectorRef = useRef<HTMLDivElement>(null);
 
-  const handleAddToFolder = async () => {
-    if (selectedFolder !== null) {
-      try {
-        const result = await addBookmarkToFolder(bookmarkId, selectedFolder);
-        if (result.success) {
-          // Handle success (e.g., show a success message or update UI)
-        } else {
-          // Handle error
-          console.error(result.error);
-        }
-      } catch (error) {
-        console.error("Error adding bookmark to folder:", error);
+  const handleAddToFolder = async (folderId: number) => {
+    try {
+      const result = await addBookmarkToFolder(bookmarkId, folderId);
+      if (result.success) {
+        // Handle success (e.g., show a success message or update UI)
+        setShowFolderSelector(false);
+      } else {
+        // Handle error
+        console.error(result.error);
       }
+    } catch (error) {
+      console.error("Error adding bookmark to folder:", error);
     }
   };
 
@@ -90,17 +94,32 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     }
   };
 
-  // Fetch folders when the component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchFolders = async () => {
-      // Replace this with your actual API call to fetch folders
       const fetchedFolders = await getFolders();
-      console.log(fetchedFolders);
       setFolders(fetchedFolders);
     };
     fetchFolders();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        folderSelectorRef.current &&
+        !folderSelectorRef.current.contains(event.target as Node)
+      ) {
+        setShowFolderSelector(false);
+      }
+    };
+
+    if (showFolderSelector) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFolderSelector]);
 
   const handleAddTag = async () => {
     if (newTag.trim()) {
@@ -123,7 +142,6 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
       console.error("Error deleting tag:", error);
     }
   };
-
 
   return (
     <Dialog>
@@ -158,111 +176,112 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
               {domain}
             </Link>
           </header>
-          <div className="h-[calc(100%-190px)] overflow-scroll scroll bg-[#1d1e28]">
-            <div className="Tldr text-[#748297] font-nunito p-4">
-              <div className="top-left-text "></div>
-              Content here to ensure the div is visible
-            </div>
-            <div className="Tags p-4">
-              <h3 className="text-[#a7b4c6] font-nunito mb-2">Tags:</h3>
-              <div
-                className={cn(
-                  "overflow-hidden transition-all duration-300 ease-in-out",
-                  isAddingTag
-                    ? "mb-4 max-h-20 opacity-100"
-                    : "max-h-0 opacity-0"
-                )}
-                style={{
-                  transform: isAddingTag
-                    ? "translateY(0)"
-                    : "translateY(-20px)",
-                  transitionProperty: "max-height, opacity, transform",
-                  transitionDuration: "400ms, 400ms, 400ms",
-                  transitionDelay: isAddingTag
-                    ? "0ms, 0ms, 0ms"
-                    : "0ms, 0ms, 0ms",
-                }}
-              >
-                <div className="flex gap-1">
-                  <Input
-                    type="text"
-                    value={newTag}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setNewTag(e.target.value)
-                    }
-                    placeholder="New tag"
-                    className="bg-[#242531] h-[45px] focus:outline-none text-[#a7b4c6] flex-grow border-none Input"
-                    onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
-                  />
-                  <Button onClick={handleAddTag} className=" bg-[#ff5924] hover:bg-[#ba3c11] h-[45px] ">
-                    <Plus/>
-                  </Button>
-                  {/* <Button
-                    onClick={() => setIsAddingTag(false)}
-                    variant="ghost"
-                    className="shrink-0"
+          <div className="h-[calc(100%-95px)] flex flex-col justify-between  scroll bg-[#1d1e28]">
+            <div>
+              <div className="Tldr text-[#748297] font-nunito p-4">
+                <div className="top-left-text "></div>
+                Content here to ensure the div is visible
+              </div>
+              <div className=" overflow-scroll p-4">
+                <h3 className="text-[#a7b4c6] font-nunito mb-2">Tags:</h3>
+                <div
+                  className={cn(
+                    "overflow-hidden transition-all duration-300 ease-in-out",
+                    isAddingTag
+                      ? "mb-4 max-h-20 opacity-100"
+                      : "max-h-0 opacity-0"
+                  )}
+                  style={{
+                    transform: isAddingTag
+                      ? "translateY(0)"
+                      : "translateY(-20px)",
+                    transitionProperty: "max-height, opacity, transform",
+                    transitionDuration: "400ms, 400ms, 400ms",
+                    transitionDelay: isAddingTag
+                      ? "0ms, 0ms, 0ms"
+                      : "0ms, 0ms, 0ms",
+                  }}
+                >
+                  <div className="flex gap-1">
+                    <Input
+                      type="text"
+                      value={newTag}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setNewTag(e.target.value)
+                      }
+                      placeholder="New tag"
+                      className="bg-[#242531] h-[45px] focus:outline-none text-[#a7b4c6] flex-grow border-none Input"
+                      onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
+                    />
+                    <Button
+                      onClick={handleAddTag}
+                      className=" bg-[#ff5924] hover:bg-[#ba3c11] h-[45px] "
+                    >
+                      <Plus />
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <button
+                    onClick={() => setIsAddingTag(!isAddingTag)}
+                    className={cn(
+                      "bg-[#ff5924] text-white px-2.5 py-0.5 rounded-full text-sm flex items-center transition-all duration-300 font-nunito hover:bg-[#2a2b38] border border-[#ff5924] ",
+                      isAddingTag
+                        ? " bg-transparent "
+                        : "opacity-100 translate-y-0 duration-100 "
+                    )}
                   >
-                    Cancel
-                  </Button> */}
+                    <Plus size={13} className="mr-1" />
+                    Add tag
+                  </button>
+                  {tagArray.map((tag: string, index: number) => (
+                    <div
+                      key={index}
+                      className="relative group"
+                      style={{ boxShadow: "5px 5px 22px rgb(0 0 0 / 11%)" }}
+                    >
+                      <span className="bg-[#1c1e26] group-hover:bg-black text-[#748297] px-3 py-1.5 rounded-full text-sm font-nunito font-extralight inline-block border group-hover:border cursor-pointer">
+                        {tag}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteTag(tag)}
+                        className="absolute -top-1 -right-1 bg-[#36373a] text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#2a2b38] border "
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 mb-4">
-                <button
-                  onClick={() => setIsAddingTag(!isAddingTag)}
-                  className={cn(
-                    "bg-[#ff5924] text-white px-2.5 py-0.5 rounded-full text-sm flex items-center transition-all duration-300 font-nunito hover:bg-[#2a2b38] border border-[#ff5924] ",
-                    isAddingTag
-                      ? " bg-transparent "
-                      : "opacity-100 translate-y-0 duration-1000 "
-                  )}
+            </div>
+            <div className=" gap-3 h-[95px] relative flex  items-end pb-4 justify-center ">
+              <div ref={folderSelectorRef} className="">
+                <div
+                  onClick={() => setShowFolderSelector(!showFolderSelector)}
+                  className="bg-[#1c1e26] text-[#748297] hover:bg-[#3b3f4f] rounded-full p-1.5 "
                 >
-                  <Plus size={13} className="mr-1" />
-                  Add tag
-                </button>
-                {tagArray.map((tag: string, index: number) => (
-              <div
-                key={index}
-                className="relative group"
-                style={{ boxShadow: "5px 5px 22px rgb(0 0 0 / 11%)" }}
-              >
-                <span className="bg-[#1c1e26] group-hover:bg-black text-[#748297] px-3 py-1.5 rounded-full text-sm font-nunito font-extralight inline-block border group-hover:border">
-                  {tag}
-                </span>
-                <button
-                  onClick={() => handleDeleteTag(tag)}
-                  className="absolute -top-1 -right-1 bg-[#36373a] text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#2a2b38] border "
-                >
-                  <X size={12} />
-                </button>
+                  <Circle size={23} className="" />
+                  
+                </div>
+                {showFolderSelector && (
+                  <div>
+                    <FolderSelector
+                      folders={folders}
+                      onSelectFolder={handleAddToFolder}
+                      onClose={() => setShowFolderSelector(false)}
+                    />
+                  </div>
+                )}
               </div>
-            ))}
+              <div
+                onClick={handleDeleteBookmark}
+                className="bg-[#1c1e26] text-[#748297] hover:bg-[#3b3f4f] rounded-full "
+              >
+                <Trash2 size={34} className="p-1.5" />
+                
               </div>
             </div>
           </div>
-          <div className="Folder-and-Delete p-4 h-[95px]">
-              <div className="flex items-center gap-2 mb-4">
-                <select
-                  value={selectedFolder || ''}
-                  onChange={(e) => setSelectedFolder(Number(e.target.value))}
-                  className="bg-[#242531] text-[#a7b4c6] p-2 rounded-md flex-grow"
-                >
-                  <option value="">Select a folder</option>
-                  {folders.map((folder) => (
-                    <option key={folder.id} value={folder.id}>
-                      {folder.name}
-                    </option>
-                  ))}
-                </select>
-                <Button onClick={handleAddToFolder} className="bg-[#ff5924] hover:bg-[#ba3c11]">
-                  <Folder size={16} className="mr-2" />
-                  Add to Folder
-                </Button>
-              </div>
-              <Button onClick={handleDeleteBookmark} className="bg-red-600 hover:bg-red-700 w-full">
-                <Trash2 size={16} className="mr-2" />
-                Delete Bookmark
-              </Button>
-            </div>
         </div>
       </DialogContent>
     </Dialog>
@@ -271,18 +290,13 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
 
 export default BookmarkModal;
 
-// ... (keep the existing extractDomain function)
 function extractDomain(url: string): string {
   let domain;
-  // Remove protocol
   if (url.indexOf("//") > -1) {
     domain = url.split("/")[2];
   } else {
     domain = url.split("/")[0];
   }
-
-  // Remove port number and query string
   domain = domain.split(":")[0].split("?")[0];
-
   return domain;
 }
