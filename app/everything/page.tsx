@@ -121,7 +121,7 @@ const EveryBookmark = () => {
               bookmarkId={bookmark.id}
               title={bookmark.title}
               tags={bookmark.tags}
-              bookmarkHeights={getRandomHeightMultiplier()}
+              bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
             />
           </div>
         ))}
