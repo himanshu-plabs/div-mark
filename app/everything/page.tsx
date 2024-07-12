@@ -9,6 +9,8 @@ import { getAllBookmarks } from "@/actions/getAllBookmarks";
 import { Decimal } from "@prisma/client/runtime/library";
 import BookmarkCard from "@/components/EverythingComponents/BookmarkCard";
 import BookmarkModal from "@/components/EverythingComponents/BookmarkModal";
+import CreateFolderForm from "@/components/EverythingComponents/CreateFolderForm";
+import ScreenshotComponent from "@/components/EverythingComponents/ScreenshotComponent";
 
 // Define the types based on your Prisma schema
 type UserRole = "ADMIN" | "USER";

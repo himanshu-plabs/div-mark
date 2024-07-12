@@ -21,6 +21,7 @@ import {
 } from "@/actions/addOrDeleteBookmark";
 import { getFolders } from "@/actions/fetchAllFolderWithTags";
 import FolderSelector from "./FolderSelector";
+import Image from "next/image";
 
 interface Folder {
   id: number;
@@ -155,16 +156,35 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
         />
       </DialogTrigger>
       <DialogContent className="w-[94%] h-[85%] flex">
-        <div className="w-full">
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </DialogDescription>
-          </DialogHeader>
-        </div>
-        <div className="w-[550px] rounded-lg overflow-hidden  flex flex-col">
+        <section className="w-full h-full ">
+          <div className="flex flex-col items-center m-[100px] h-full ">
+            {screenshot ? (
+              <Image
+                src={`data:image/jpeg;base64,${screenshot}`}
+                alt={title || "Bookmark screenshot"}
+                width={600}
+                height={300}
+                className="rounded-lg object-cover"
+              />
+            ) : (
+              <div className="w-[500px] h-[300px] bg-gray-200 rounded-lg flex items-center justify-center">
+                <span className="text-gray-500">No screenshot available</span>
+              </div>
+            )}
+            <h2 className="mt-4 text-3xl text-[#a7b4c6] font-bold font-nunito text-center">
+              {title}
+            </h2>
+            <Link
+              href={text}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 text-[#7A889D] text-[13px] underline font-nunito"
+            >
+              VISIT ORIGINAL ARTICLE
+            </Link>
+          </div>
+        </section>
+        <section className="w-[550px] rounded-lg overflow-hidden  flex flex-col">
           <header className="w-full h-[95px] font-nunito py-5 px-[27px] flex flex-col justify-center text-[#a7b4c6] header-gradient ">
             <div className="text-[29px] font-extralight">{title}</div>
             <Link
@@ -261,7 +281,6 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                   className="bg-[#1c1e26] text-[#748297] hover:bg-[#3b3f4f] rounded-full p-1.5 "
                 >
                   <Circle size={23} className="" />
-                  
                 </div>
                 {showFolderSelector && (
                   <div>
@@ -278,11 +297,10 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                 className="bg-[#1c1e26] text-[#748297] hover:bg-[#3b3f4f] rounded-full "
               >
                 <Trash2 size={34} className="p-1.5" />
-                
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </DialogContent>
     </Dialog>
   );
