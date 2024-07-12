@@ -12,9 +12,12 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { addTag } from "@/actions/bookmarkActions";
-import { Plus, PlusCircle, X } from "lucide-react";
+import { Plus, PlusCircle, X,Folder, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DeleteTag } from "@/actions/DeleteTag";
+import {  addBookmarkToFolder, deleteBookmark } from "@/actions/addOrDeleteBookmark";
+import { getFolders } from "@/actions/fetchAllFolderWithTags";
+
 
 // ... (keep the existing interfaces and types)
 interface Folder {
@@ -51,6 +54,53 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     tags.split(",").map((tag: string) => tag.trim())
   );
   const [isAddingTag, setIsAddingTag] = useState<boolean>(false);
+  const [folders, setFolders] = useState<{
+    id: number;
+    name: string;
+}[]>([]);
+  const [selectedFolder, setSelectedFolder] = useState<number | null>(null);
+
+  const handleAddToFolder = async () => {
+    if (selectedFolder !== null) {
+      try {
+        const result = await addBookmarkToFolder(bookmarkId, selectedFolder);
+        if (result.success) {
+          // Handle success (e.g., show a success message or update UI)
+        } else {
+          // Handle error
+          console.error(result.error);
+        }
+      } catch (error) {
+        console.error("Error adding bookmark to folder:", error);
+      }
+    }
+  };
+
+  const handleDeleteBookmark = async () => {
+    try {
+      const result = await deleteBookmark(bookmarkId);
+      if (result.success) {
+        // Handle success (e.g., close the modal and update the parent component)
+      } else {
+        // Handle error
+        console.error(result.error);
+      }
+    } catch (error) {
+      console.error("Error deleting bookmark:", error);
+    }
+  };
+
+  // Fetch folders when the component mounts
+  React.useEffect(() => {
+    const fetchFolders = async () => {
+      // Replace this with your actual API call to fetch folders
+      const fetchedFolders = await getFolders();
+      console.log(fetchedFolders);
+      setFolders(fetchedFolders);
+    };
+    fetchFolders();
+  }, []);
+
 
   const handleAddTag = async () => {
     if (newTag.trim()) {
@@ -73,6 +123,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
       console.error("Error deleting tag:", error);
     }
   };
+
 
   return (
     <Dialog>
@@ -107,7 +158,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
               {domain}
             </Link>
           </header>
-          <div className="h-[calc(100%-95px)] overflow-scroll scroll bg-[#1d1e28]">
+          <div className="h-[calc(100%-190px)] overflow-scroll scroll bg-[#1d1e28]">
             <div className="Tldr text-[#748297] font-nunito p-4">
               <div className="top-left-text "></div>
               Content here to ensure the div is visible
@@ -188,6 +239,30 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
               </div>
             </div>
           </div>
+          <div className="Folder-and-Delete p-4 h-[95px]">
+              <div className="flex items-center gap-2 mb-4">
+                <select
+                  value={selectedFolder || ''}
+                  onChange={(e) => setSelectedFolder(Number(e.target.value))}
+                  className="bg-[#242531] text-[#a7b4c6] p-2 rounded-md flex-grow"
+                >
+                  <option value="">Select a folder</option>
+                  {folders.map((folder) => (
+                    <option key={folder.id} value={folder.id}>
+                      {folder.name}
+                    </option>
+                  ))}
+                </select>
+                <Button onClick={handleAddToFolder} className="bg-[#ff5924] hover:bg-[#ba3c11]">
+                  <Folder size={16} className="mr-2" />
+                  Add to Folder
+                </Button>
+              </div>
+              <Button onClick={handleDeleteBookmark} className="bg-red-600 hover:bg-red-700 w-full">
+                <Trash2 size={16} className="mr-2" />
+                Delete Bookmark
+              </Button>
+            </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,3 +1,4 @@
+'use server';
 import { db } from "@/lib/db";
 
 export const fetchAllFoldersWithTags = async () => {
@@ -13,3 +14,16 @@ export const fetchAllFoldersWithTags = async () => {
     },
   });
 };
+
+export async function getFolders() {
+  try {
+    const folders = await db.folder.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+    return folders;
+  } catch (error) {
+    console.error("Error fetching folders:", error);
+    return [];
+  }
+}
