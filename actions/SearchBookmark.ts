@@ -8,6 +8,10 @@ async function SearchBookmarks(tagsToSearch: string) {
 
   // Fetch all bookmarks
   const bookmarks = await db.bookmark.findMany({
+    include: {
+      folder: true,
+      user: true,
+    },
     where: {
       OR: [
         {

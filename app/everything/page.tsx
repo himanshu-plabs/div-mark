@@ -52,6 +52,7 @@ const getRandomHeightMultiplier = () => {
 
 const EveryBookmark = () => {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [random, setRandom] = useState<number>(1);
@@ -89,6 +90,8 @@ const EveryBookmark = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  const displayedBookmarks = filteredBookmarks.length > 0 ? filteredBookmarks : bookmarks;
+
   const breakpointColumnsObj = {
     default: 6,
     1100: 4,
@@ -99,7 +102,7 @@ const EveryBookmark = () => {
   return (
     <div className="bg-[#14161e] min-h-screen px-[80px]">
       <Navbar />
-      <BookmarkSearch />
+      <BookmarkSearch setFilteredBookmarks={setFilteredBookmarks} />
 
       <Masonry
         breakpointCols={breakpointColumnsObj}
@@ -107,26 +110,22 @@ const EveryBookmark = () => {
         columnClassName="my-masonry-grid_column"
       >
         <BookmarkForm setBookmarks={setBookmarks} />
-        {bookmarks.map((bookmark) => {
-          const heightMultiplier = getRandomHeightMultiplier();
-          return (
-            <div key={bookmark.id}>
-              <BookmarkModal
-                screenshot={bookmark.screenshot}
-                text={bookmark.text}
-                key={bookmark.id}
-                folder={bookmark.folder}
-                modal={modal}
-                bookmarkId={bookmark.id}
-                title={bookmark.title}
-                tags={bookmark.tags}
-                bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-              />
-            </div>
-          );
-        })}
+        {displayedBookmarks.map((bookmark) => (
+          <div key={bookmark.id}>
+            <BookmarkModal
+              screenshot={bookmark.screenshot}
+              text={bookmark.text}
+              key={bookmark.id}
+              folder={bookmark.folder}
+              modal={modal}
+              bookmarkId={bookmark.id}
+              title={bookmark.title}
+              tags={bookmark.tags}
+              bookmarkHeights={getRandomHeightMultiplier()}
+            />
+          </div>
+        ))}
       </Masonry>
-
       {/* <ScreenshotComponent />
       <CreateFolderForm /> */}
     </div>
