@@ -49,3 +49,45 @@ export async function getBookmarksByFolderId(folderId: number) {
     return [];
   }
 }
+
+export async function getFolderById(folderId: number) {
+  try {
+    const folder = await db.folder.findUnique({
+      where: { id: folderId },
+      select: { id: true, name: true, createdAt: true },
+    });
+    return folder;
+  } catch (error) {
+    console.error("Error fetching folder:", error);
+    return null;
+  }
+}
+export async function updateFolderName(folderId: number, newName: string) {
+  try {
+    const updatedFolder = await db.folder.update({
+      where: { id: folderId },
+      data: { name: newName },
+    });
+    return updatedFolder;
+  } catch (error) {
+    console.error("Error updating folder name:", error);
+    throw error;
+  }
+}
+
+export const getFoldersWithFirstBookmark = async () => {
+  const folders = await db.folder.findMany({
+    include: {
+      bookmarks: {
+        take: 1,
+      },
+    },
+  });
+
+  return folders.map(folder => ({
+    id: folder.id,
+    name: folder.name,
+    createdAt: folder.createdAt,
+    firstBookmark: folder.bookmarks[0] || null,
+  }));
+};

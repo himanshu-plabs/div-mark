@@ -1,84 +1,41 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Masonry from "react-masonry-css";
+import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/EverythingComponents/Navbar";
+import { getFoldersWithFirstBookmark } from "@/actions/fetchAllFolderWithTags";
 
-import BookmarkModal from "@/components/EverythingComponents/BookmarkModal";
-import {
-  getBookmarksByFolderId,
-  getFolders,
-} from "@/actions/fetchAllFolderWithTags";
+interface Bookmark {
+  id: number;
+  screenshot: string | null;
+}
 
 interface Folder {
   id: number;
   name: string;
   createdAt: Date;
+  firstBookmark: Bookmark | null;
 }
 
-interface Bookmark {
-  id: number;
-  title: string | null;
-  text: string;
-  screenshot: string | null;
-  tags: string;
-  createdAt: Date;
-  folderId: number | null;
-  userId: string | null;
-}
-const getRandomHeightMultiplier = () => {
-  const multipliers = [1, 0.8, 1, 1.1, 1.2, 0.7, 1.3];
-  return multipliers[Math.floor(Math.random() * multipliers.length)];
-};
 const Spaces = () => {
   const [folders, setFolders] = useState<Folder[]>([]);
-  const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [bookmarkHeights, setBookmarkHeights] = useState<{
-    [key: number]: number;
-  }>({});
-  const [modal, setModal] = useState<boolean>(true);
-  useEffect(() => {
-    const newHeights = bookmarks.reduce((acc, bookmark) => {
-      acc[bookmark.id] = getRandomHeightMultiplier();
-      return acc;
-    }, {} as { [key: number]: number });
-
-    setBookmarkHeights(newHeights);
-  }, [bookmarks]);
 
   useEffect(() => {
     const fetchFolders = async () => {
       try {
-        const fetchedFolders = await getFolders();
+        const fetchedFolders = await getFoldersWithFirstBookmark();
         setFolders(fetchedFolders);
         setIsLoading(false);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
       } finally {
         setIsLoading(false);
       }
     };
     fetchFolders();
   }, []);
-
-  const handleFolderClick = async (folder: Folder) => {
-    setSelectedFolder(folder);
-    // Fetch bookmarks for the selected folder
-    // Assuming you have a function getBookmarksByFolderId
-    const fetchedBookmarks = await getBookmarksByFolderId(folder.id);
-    setBookmarks(fetchedBookmarks);
-  };
-
-  const breakpointColumnsObj = {
-    default: 6,
-    1100: 4,
-    700: 3,
-    500: 2,
-  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -87,48 +44,47 @@ const Spaces = () => {
     <div className="bg-[#14161e] min-h-screen px-[80px]">
       <Navbar />
       <main className="">
-        <h1 className="text-3xl font-bold text-white mb-6">Spaces</h1>
-        {!selectedFolder ? (
-          <div>
-            {folders.map((folder) => (
-              <div key={folder.id} onClick={() => handleFolderClick(folder)}>
-                <h2 className="text-xl font-bold text-white mb-4 cursor-pointer">
-                  {folder.name}
-                </h2>
-              </div>
-            ))}
+        <div className="relative w-full mt-[30px]">
+          <input
+            value='All spaces'
+            className="w-full placeholder-[#748297] focus:outline-none bg-transparent font-satisfy text-6xl pl-[6px] hover:placeholder-[#444c5c] text-[#748297] transition duration-300 ease-in-out"
+            readOnly
+          />
+          <div className="w-full h-[1px] bg-[#36373a] mt-[7px]"></div>
+          <div className="absolute bottom-0 left-0 w-full h-0.5 overflow-hidden">
+            <div className="moving-highlight"></div>
           </div>
-        ) : (
-          <div>
-            <button
-              onClick={() => setSelectedFolder(null)}
-              className="text-white mb-4"
-            >
-              Back to Folders
-            </button>
-            <Masonry
-              breakpointCols={breakpointColumnsObj}
-              className="my-masonry-grid"
-              columnClassName="my-masonry-grid_column"
-            >
-              {bookmarks.map((bookmark) => (
-                <div key={bookmark.id} className="">
-                  <BookmarkModal
-                    screenshot={bookmark.screenshot}
-                    text={bookmark.text}
-                    key={bookmark.id}
-                    folder={selectedFolder}
-                    modal={true}
-                    bookmarkId={bookmark.id}
-                    title={bookmark.title}
-                    tags={bookmark.tags}
-                    bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-                  />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mt-6">
+          {folders.map((folder) => (
+            <div key={folder.id} className="shadow-md overflow-hidden rounded-lg">
+              <Link href={`/spaces/${folder.id}`}>
+                <div className="cursor-pointer">
+                  {folder.firstBookmark && folder.firstBookmark.screenshot ? (
+                    <div style={{ position: 'relative', width: '250px', height: '150px' }}>
+                      <Image
+                        src={`data:image/png;base64,${folder.firstBookmark.screenshot}`}
+                        alt={folder.name}
+                        layout="fill"
+                        objectFit="cover"
+                        className="rounded-md"
+                      />
+                    </div>
+                  ) : (
+                    <div className="p-5 bg-[#1e1f2a] h-full flex flex-col justify-between rounded-md">
+                      <p className="text-[#748297] text-sm font-nunito">No Image</p>
+                    </div>
+                  )}
+                  <div className="p-2">
+                    <h3 className="text-sm font-nunito truncate text-center text-white">
+                      {folder.name}
+                    </h3>
+                  </div>
                 </div>
-              ))}
-            </Masonry>
-          </div>
-        )}
+              </Link>
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   );
