@@ -1,6 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import SearchBookmarks from "@/actions/SearchBookmark";
+import CreateFolderAndAddBookmarks from "@/actions/CreateFolderAndAddBookmarks";
+
 type UserRole = "ADMIN" | "USER";
 
 interface User {
@@ -39,6 +42,9 @@ interface BookmarkSearchProps {
 
 const BookmarkSearch: React.FC<BookmarkSearchProps> = ({ setFilteredBookmarks }) => {
   const [tags, setTags] = useState<string>("");
+  const [filteredBookmarks, setLocalFilteredBookmarks] = useState<Bookmark[]>([]);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [folderName, setFolderName] = useState<string>("");
 
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -46,19 +52,32 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({ setFilteredBookmarks })
         try {
           const response = await SearchBookmarks(tags);
           setFilteredBookmarks(response);
+          setLocalFilteredBookmarks(response);
         } catch (error) {
           console.error("Error fetching bookmarks:", error);
         }
       } else {
         setFilteredBookmarks([]);
+        setLocalFilteredBookmarks([]);
       }
     };
 
     fetchBookmarks();
   }, [tags, setFilteredBookmarks]);
 
+  const handleCreateFolder = async () => {
+    const bookmarkIds = filteredBookmarks.map(bookmark => bookmark.id);
+    try {
+      await CreateFolderAndAddBookmarks(folderName, bookmarkIds);
+      setIsOpen(false);
+      setFolderName("");
+    } catch (error) {
+      console.error("Error creating folder and adding bookmarks:", error);
+    }
+  };
+
   return (
-    <div className=" mx-auto pt-1 ">
+    <div className="mx-auto pt-1">
       <div className="relative w-full mb-4">
         <input
           value={tags}
@@ -70,7 +89,36 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({ setFilteredBookmarks })
         <div className="absolute bottom-0 left-0 w-full h-0.5 overflow-hidden">
           <div className="moving-highlight"></div>
         </div>
+        {tags && (
+          <button
+            onClick={() => setIsOpen(true)}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 text-white ml-4"
+          >
+            Add to Folder
+          </button>
+        )}
       </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger />
+        <DialogContent>
+          <div className="p-4">
+            <h2 className="text-2xl mb-4">Create New Folder</h2>
+            <input
+              value={folderName}
+              onChange={(e) => setFolderName(e.target.value)}
+              placeholder="Folder Name"
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+            <button
+              onClick={handleCreateFolder}
+              className="mt-4 bg-blue-500 text-white p-2 rounded"
+            >
+              Create Folder
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -6,11 +6,8 @@ import BookmarkForm from "@/components/EverythingComponents/BookmarkForm";
 import BookmarkSearch from "@/components/EverythingComponents/BookmarkSearch";
 import Navbar from "@/components/EverythingComponents/Navbar";
 import { getAllBookmarks } from "@/actions/getAllBookmarks";
-import { Decimal } from "@prisma/client/runtime/library";
-import BookmarkCard from "@/components/EverythingComponents/BookmarkCard";
 import BookmarkModal from "@/components/EverythingComponents/BookmarkModal";
-import CreateFolderForm from "@/components/EverythingComponents/CreateFolderForm";
-import ScreenshotComponent from "@/components/EverythingComponents/ScreenshotComponent";
+import CreateFolderAndAddBookmarks from "@/actions/CreateFolderAndAddBookmarks";
 
 // Define the types based on your Prisma schema
 type UserRole = "ADMIN" | "USER";
@@ -55,11 +52,10 @@ const EveryBookmark = () => {
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [random, setRandom] = useState<number>(1);
-  const [bookmarkHeights, setBookmarkHeights] = useState<{
-    [key: number]: number;
-  }>({});
-  const [modal, setModal] = useState<boolean>(true);
+  const [bookmarkHeights, setBookmarkHeights] = useState<{ [key: number]: number }>({});
+  const [modal, setModal] = useState<boolean>(false);
+  const [folderName, setFolderName] = useState<string>("");
+
   useEffect(() => {
     const newHeights = bookmarks.reduce((acc, bookmark) => {
       acc[bookmark.id] = getRandomHeightMultiplier();
@@ -67,25 +63,37 @@ const EveryBookmark = () => {
     }, {} as { [key: number]: number });
 
     setBookmarkHeights(newHeights);
-  }, [bookmarks]); // This effect runs only when bookmarks change
+  }, [bookmarks]);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
         const fetchedBookmarks = await getAllBookmarks();
-
         setBookmarks(fetchedBookmarks);
         setIsLoading(false);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
         setIsLoading(false);
       }
     };
 
     fetchBookmarks();
-  }, [getAllBookmarks]);
+  }, []);
+
+  const handleAddToFolder = () => {
+    setModal(true);
+  };
+
+  const handleCreateFolder = async () => {
+    try {
+      await CreateFolderAndAddBookmarks(folderName, filteredBookmarks.map(bm => bm.id));
+      setFolderName("");
+      setModal(false);
+      // Refresh bookmarks if needed
+    } catch (err) {
+      console.error("Failed to create folder and add bookmarks:", err);
+    }
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -102,7 +110,27 @@ const EveryBookmark = () => {
   return (
     <div className="bg-[#14161e] min-h-screen px-[80px]">
       <Navbar />
-      <BookmarkSearch setFilteredBookmarks={setFilteredBookmarks} />
+      <BookmarkSearch
+        setFilteredBookmarks={setFilteredBookmarks}
+        
+      />
+      {modal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-4 rounded-md">
+            <h2 className="text-xl mb-4">Create New Folder</h2>
+            <input
+              type="text"
+              value={folderName}
+              onChange={(e) => setFolderName(e.target.value)}
+              placeholder="Folder Name"
+              className="border p-2 rounded-md mb-4 w-full"
+            />
+            <button onClick={handleCreateFolder} className="bg-blue-500 text-white p-2 rounded-md">
+              Create Folder
+            </button>
+          </div>
+        </div>
+      )}
 
       <Masonry
         breakpointCols={breakpointColumnsObj}
@@ -126,8 +154,6 @@ const EveryBookmark = () => {
           </div>
         ))}
       </Masonry>
-      {/* <ScreenshotComponent />
-      <CreateFolderForm /> */}
     </div>
   );
 };

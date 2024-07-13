@@ -183,7 +183,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
         </section>
         <section className="w-[550px] rounded-lg overflow-hidden  flex flex-col">
           <header className="w-full h-[95px] font-nunito py-5 px-[27px] flex flex-col justify-center text-[#a7b4c6] header-gradient ">
-            <div className="text-[29px] font-extralight">{title}</div>
+            <div className="text-[29px] font-extralight truncate ">{title}</div>
             <Link
               href={link}
               target="_blank"
