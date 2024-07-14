@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import SearchBookmarks from "@/actions/SearchBookmark";
 import CreateFolderAndAddBookmarks from "@/actions/CreateFolderAndAddBookmarks";
+import { Input } from "../ui/input";
+import logo from '@/public/logo.png'
+import Image from "next/image";
 
 type UserRole = "ADMIN" | "USER";
 
@@ -104,20 +107,22 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({ setFilteredBookmarks, s
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger />
-        <DialogContent>
-          <div className="p-4">
-            <h2 className="text-2xl mb-4">Create New Folder</h2>
-            <input
+        <DialogContent className=" w-[440px] h-[469px] px-[30px] py-10 pt-5 font-nunito  bg-[#0a0b0f] ">
+          <div className="p-4 text-center flex flex-col items-center pt-0">
+            <Image src={logo} alt="logo" width="100" height="60" />
+            <h2 className="text-4xl mb-4">Create New Folder</h2>
+            <p className="text-lg font-extralight text-[#a7b4c6] ">This "smart space" is a dynamic collection of  one or more search terms saved into one space.</p>
+            <Input
               value={folderName}
               onChange={(e) => setFolderName(e.target.value)}
-              placeholder="Folder Name"
-              className="w-full p-2 border border-gray-300 rounded"
+              placeholder="Name your new space"
+              className="w-full p-[15px] bg-[#14161e] border-[#626c7a] text-center border-2   rounded h-[55.5px] text-lg mt-[30px] "
             />
             <button
               onClick={handleCreateFolder}
-              className="mt-4 bg-blue-500 text-white p-2 rounded"
+              className="mt-4 bg-[#626c7a] text-black  rounded-full tracking-widest text-xs px-5 py-[13px] "
             >
-              Create Folder
+              CREATE FOLDER
             </button>
           </div>
         </DialogContent>

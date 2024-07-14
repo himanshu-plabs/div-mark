@@ -10,7 +10,7 @@ import {
   getFolderById,
   updateFolderName,
 } from "@/actions/fetchAllFolderWithTags";
-import { ArrowLeft } from "lucide-react"; // Import Lucide icon
+import { ArrowLeft, CircleChevronLeft } from "lucide-react"; // Import Lucide icon
 
 interface Bookmark {
   id: number;
@@ -115,18 +115,20 @@ const FolderPage = () => {
       <Navbar />
       <main className="">
         <div className="flex items-center mb-4">
-          <Link href="/spaces">
-            <ArrowLeft className="text-white mr-2 cursor-pointer" />
-          </Link>
           {folder && (
             <div className="relative w-full mt-[40px] ">
-              <input
-                value={folderName}
-                onChange={handleFolderNameChange}
-                onBlur={handleFolderNameBlur}
-                className="w-full placeholder-[#748297] focus:outline-none bg-transparent font-satisfy text-6xl pl-[6px] hover:placeholder-[#444c5c] text-[#748297] transition duration-300 ease-in-out"
-              />
-              <div className="w-full h-[1px] bg-[#36373a] mt-[0px]"></div>
+              <div className="flex items-center">
+                <Link href="/spaces" className="">
+                  <CircleChevronLeft className="text-[#748297] transition-all duration-150 hover:text-white mr-5 mt-2 cursor-pointer" size={38} />
+                </Link>
+                <input
+                  value={folderName}
+                  onChange={handleFolderNameChange}
+                  onBlur={handleFolderNameBlur}
+                  className="w-full placeholder-[#748297] focus:outline-none bg-transparent font-satisfy text-6xl pl-[6px] hover:placeholder-[#444c5c] text-[#748297] transition duration-300 ease-in-out"
+                />
+              </div>
+              <div className="w-full h-[1px] bg-[#36373a] mt-[6px]"></div>
               <div className="absolute bottom-0 left-0 w-full h-0.5 overflow-hidden">
                 <div className="moving-highlight"></div>
               </div>
