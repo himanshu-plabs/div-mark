@@ -37,7 +37,7 @@ const Spaces = () => {
     fetchFolders();
   }, []);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div> Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (

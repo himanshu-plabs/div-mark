@@ -55,6 +55,7 @@ const EveryBookmark = () => {
   const [bookmarkHeights, setBookmarkHeights] = useState<{ [key: number]: number }>({});
   const [modal, setModal] = useState<boolean>(false);
   const [folderName, setFolderName] = useState<string>("");
+  const [searchString, setSearchString] = useState<boolean>(false);
 
   useEffect(() => {
     const newHeights = bookmarks.reduce((acc, bookmark) => {
@@ -97,8 +98,10 @@ const EveryBookmark = () => {
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
+  
+  const displayedBookmarks = searchString ? filteredBookmarks : bookmarks;
+  
 
-  const displayedBookmarks = filteredBookmarks.length > 0 ? filteredBookmarks : bookmarks;
 
   const breakpointColumnsObj = {
     default: 6,
@@ -112,6 +115,7 @@ const EveryBookmark = () => {
       <Navbar />
       <BookmarkSearch
         setFilteredBookmarks={setFilteredBookmarks}
+        setSearchString={setSearchString}
         
       />
       {modal && (

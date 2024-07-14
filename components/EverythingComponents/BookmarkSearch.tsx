@@ -38,9 +38,10 @@ interface Bookmark {
 
 interface BookmarkSearchProps {
   setFilteredBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  setSearchString: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const BookmarkSearch: React.FC<BookmarkSearchProps> = ({ setFilteredBookmarks }) => {
+const BookmarkSearch: React.FC<BookmarkSearchProps> = ({ setFilteredBookmarks, setSearchString }) => {
   const [tags, setTags] = useState<string>("");
   const [filteredBookmarks, setLocalFilteredBookmarks] = useState<Bookmark[]>([]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -51,6 +52,7 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({ setFilteredBookmarks })
       if (tags) {
         try {
           const response = await SearchBookmarks(tags);
+          setSearchString(true)
           setFilteredBookmarks(response);
           setLocalFilteredBookmarks(response);
         } catch (error) {
@@ -59,6 +61,7 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({ setFilteredBookmarks })
       } else {
         setFilteredBookmarks([]);
         setLocalFilteredBookmarks([]);
+        setSearchString(false);
       }
     };
 
