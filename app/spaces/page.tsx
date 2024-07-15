@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/EverythingComponents/Navbar";
 import { getFoldersWithFirstBookmark } from "@/actions/fetchAllFolderWithTags";
+import { SkeletonCard } from "@/components/SkeletonCard";
 
 interface Bookmark {
   id: number;
@@ -30,14 +31,12 @@ const Spaces = () => {
         setIsLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred");
-      } finally {
         setIsLoading(false);
       }
     };
     fetchFolders();
   }, []);
 
-  if (isLoading) return <div> Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
@@ -56,34 +55,36 @@ const Spaces = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mt-6">
-          {folders.map((folder) => (
-            <div key={folder.id} className="shadow-md overflow-hidden rounded-lg">
-              <Link href={`/spaces/${folder.id}`}>
-                <div className="cursor-pointer">
-                  {folder.firstBookmark && folder.firstBookmark.screenshot ? (
-                    <div style={{ position: 'relative', width: '250px', height: '150px' }}>
-                      <Image
-                        src={`data:image/png;base64,${folder.firstBookmark.screenshot}`}
-                        alt={folder.name}
-                        layout="fill"
-                        objectFit="cover"
-                        className="rounded-md"
-                      />
+          {isLoading
+            ? Array.from({ length: 12 }).map((_, index) => <SkeletonCard key={index} />)
+            : folders.map((folder) => (
+                <div key={folder.id} className="shadow-md overflow-hidden rounded-lg">
+                  <Link href={`/spaces/${folder.id}`}>
+                    <div className="cursor-pointer">
+                      {folder.firstBookmark && folder.firstBookmark.screenshot ? (
+                        <div style={{ position: 'relative', width: '250px', height: '150px' }}>
+                          <Image
+                            src={`data:image/png;base64,${folder.firstBookmark.screenshot}`}
+                            alt={folder.name}
+                            layout="fill"
+                            objectFit="cover"
+                            className="rounded-md"
+                          />
+                        </div>
+                      ) : (
+                        <div className="p-5 bg-[#1e1f2a] h-full flex flex-col justify-between rounded-md">
+                          <p className="text-[#748297] text-sm font-nunito">No Image</p>
+                        </div>
+                      )}
+                      <div className="p-2">
+                        <h3 className="text-sm font-nunito truncate text-center text-white">
+                          {folder.name}
+                        </h3>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="p-5 bg-[#1e1f2a] h-full flex flex-col justify-between rounded-md">
-                      <p className="text-[#748297] text-sm font-nunito">No Image</p>
-                    </div>
-                  )}
-                  <div className="p-2">
-                    <h3 className="text-sm font-nunito truncate text-center text-white">
-                      {folder.name}
-                    </h3>
-                  </div>
+                  </Link>
                 </div>
-              </Link>
-            </div>
-          ))}
+              ))}
         </div>
       </main>
     </div>

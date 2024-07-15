@@ -57,7 +57,7 @@ type BookmarkCardProps = {
   bookmarkId: number;
   modal?: boolean;
   bookmarkHeights: number;
-  setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 };
 
 const BookmarkModal: React.FC<BookmarkCardProps> = ({
@@ -112,6 +112,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
       const result = await deleteBookmark(bookmarkId);
       if (result.success) {
         const allBookmarks = await getAllBookmarks();
+        if(!setBookmarks){return}
         setBookmarks(allBookmarks);
         setIsOpen(false);
         toast.success("Bookmark deleted successfully");
@@ -196,6 +197,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     try {
       await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
       const allBookmarks = await getAllBookmarks();
+      if(!setBookmarks){return}
       setBookmarks(allBookmarks);
       toast.success("Title updated successfully");
     } catch (error) {
@@ -208,6 +210,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     try {
       await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
       const allBookmarks = await getAllBookmarks();
+      if(!setBookmarks){return}
       setBookmarks(allBookmarks);
       toast.success("Text updated successfully");
     } catch (error) {

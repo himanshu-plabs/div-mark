@@ -10,7 +10,8 @@ import {
   getFolderById,
   updateFolderName,
 } from "@/actions/fetchAllFolderWithTags";
-import { ArrowLeft, CircleChevronLeft } from "lucide-react"; // Import Lucide icon
+import { CircleChevronLeft } from "lucide-react"; // Import Lucide icon
+import { SkeletonCard } from "@/components/SkeletonCard";
 
 interface Bookmark {
   id: number;
@@ -40,9 +41,7 @@ const FolderPage = () => {
   const [folder, setFolder] = useState<Folder | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [bookmarkHeights, setBookmarkHeights] = useState<{
-    [key: number]: number;
-  }>({});
+  const [bookmarkHeights, setBookmarkHeights] = useState<{ [key: number]: number }>({});
   const [modal, setModal] = useState<boolean>(true);
   const [folderName, setFolderName] = useState<string>("");
 
@@ -60,10 +59,7 @@ const FolderPage = () => {
         setBookmarks(fetchedBookmarks);
         setIsLoading(false);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
-      } finally {
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
         setIsLoading(false);
       }
     };
@@ -79,9 +75,7 @@ const FolderPage = () => {
     setBookmarkHeights(newHeights);
   }, [bookmarks]);
 
-  const handleFolderNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFolderNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFolderName(event.target.value);
   };
 
@@ -89,13 +83,9 @@ const FolderPage = () => {
     if (folder && folder.name !== folderName) {
       try {
         await updateFolderName(folder.id, folderName);
-        setFolder((prevFolder) =>
-          prevFolder ? { ...prevFolder, name: folderName } : null
-        );
+        setFolder((prevFolder) => (prevFolder ? { ...prevFolder, name: folderName } : null));
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
       }
     }
   };
@@ -107,7 +97,6 @@ const FolderPage = () => {
     500: 2,
   };
 
-  if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
@@ -140,21 +129,23 @@ const FolderPage = () => {
           className="my-masonry-grid"
           columnClassName="my-masonry-grid_column"
         >
-          {bookmarks.map((bookmark) => (
-            <div key={bookmark.id} className="">
-              <BookmarkModal
-                screenshot={bookmark.screenshot}
-                text={bookmark.text}
-                key={bookmark.id}
-                folder={folder}
-                modal={true}
-                bookmarkId={bookmark.id}
-                title={bookmark.title}
-                tags={bookmark.tags}
-                bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-              />
-            </div>
-          ))}
+          {isLoading
+            ? Array.from({ length: 12 }).map((_, index) => <SkeletonCard key={index} />)
+            : bookmarks.map((bookmark) => (
+                <div key={bookmark.id} className="">
+                  <BookmarkModal
+                    screenshot={bookmark.screenshot}
+                    text={bookmark.text}
+                    key={bookmark.id}
+                    folder={folder}
+                    modal={true}
+                    bookmarkId={bookmark.id}
+                    title={bookmark.title}
+                    tags={bookmark.tags}
+                    bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+                  />
+                </div>
+              ))}
         </Masonry>
       </main>
     </div>

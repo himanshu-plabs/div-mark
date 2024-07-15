@@ -1,3 +1,4 @@
+// components/EveryBookmark.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -8,6 +9,8 @@ import Navbar from "@/components/EverythingComponents/Navbar";
 import { getAllBookmarks } from "@/actions/getAllBookmarks";
 import BookmarkModal from "@/components/EverythingComponents/BookmarkModal";
 import CreateFolderAndAddBookmarks from "@/actions/CreateFolderAndAddBookmarks";
+import { SkeletonCard } from "@/components/SkeletonCard";
+
 
 // Define the types based on your Prisma schema
 type UserRole = "ADMIN" | "USER";
@@ -96,12 +99,7 @@ const EveryBookmark = () => {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  
   const displayedBookmarks = searchString ? filteredBookmarks : bookmarks;
-  
-
 
   const breakpointColumnsObj = {
     default: 6,
@@ -116,7 +114,6 @@ const EveryBookmark = () => {
       <BookmarkSearch
         setFilteredBookmarks={setFilteredBookmarks}
         setSearchString={setSearchString}
-        
       />
       {modal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -142,22 +139,24 @@ const EveryBookmark = () => {
         columnClassName="my-masonry-grid_column"
       >
         <BookmarkForm setBookmarks={setBookmarks} />
-        {displayedBookmarks.map((bookmark) => (
-          <div key={bookmark.id}>
+        {isLoading
+          ? Array.from({ length: 10 }).map((_, index) => <SkeletonCard key={index} />)
+          : displayedBookmarks.map((bookmark) => (
+            <div key={bookmark.id}>
             <BookmarkModal
-              screenshot={bookmark.screenshot}
+                screenshot={bookmark.screenshot}
               text={bookmark.text}
               key={bookmark.id}
               folder={bookmark.folder}
               modal={modal}
               bookmarkId={bookmark.id}
-              title={bookmark.title}
+                title={bookmark.title}
               tags={bookmark.tags}
               bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
               setBookmarks={setBookmarks}
-            />
-          </div>
-        ))}
+              />
+            </div>
+          ))}
       </Masonry>
     </div>
   );
