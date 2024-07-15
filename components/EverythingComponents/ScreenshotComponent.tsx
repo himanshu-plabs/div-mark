@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { analyzeContentAndURL, generatTags } from "@/app/Tags/actions";
 import CreateBookmark from "@/actions/CreateBookmark";
+import {toast} from 'sonner'
 
 // Define types for the responses
 type ScreenshotResponse = {
@@ -38,7 +39,7 @@ export default function ScreenshotComponent() {
       // Get HTML content and screenshot
       const screenshotRes: ScreenshotResponse | ErrorResponse =
         await TakeScreenshot(url);
-
+      await saveBookmark();
       if ("error" in screenshotRes) {
         setResult({ error: screenshotRes.error });
       } else {
@@ -57,7 +58,8 @@ export default function ScreenshotComponent() {
   const saveBookmark = async () => {
     setBookmarkLoading(true);
     try {
-      await CreateBookmark({url});
+      await CreateBookmark({ url });
+      toast.success("Bookmark saved successfully!!!");
       console.log(`Bookmark saved`);
     } catch (error) {
       console.log(error);
@@ -73,10 +75,12 @@ export default function ScreenshotComponent() {
 
     try {
       // Generate tags
-      
-      const tagsRes: { tags: string; title: string; error?: string } | undefined = await generatTags(result.html,url);
+
+      const tagsRes:
+        | { tags: string; title: string; error?: string }
+        | undefined = await generatTags(result.html, url);
       if (!tagsRes) {
-        return {message: "No tags"}
+        return { message: "No tags" };
       }
       setResult((prevResult) => ({
         ...prevResult,
@@ -96,17 +100,27 @@ export default function ScreenshotComponent() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <Input
+        {/* <Input
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="Enter URL"
+        /> */}
+
+        
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Enter URL..."
+          className="w-full placeholder-[#748297] focus:outline-none bg-transparent font-satisfy text-6xl pl-[6px] hover:placeholder-[#444c5c] text-[#748297] transition duration-300 ease-in-out"
+          onKeyPress={(e) => e.key === "Enter" && handleSubmit(e)}
         />
+        <div className="w-full h-[1px] bg-[#36373a] mt-[12px] mb-5"></div>
         <Button type="submit" disabled={loading}>
           {loading ? "Loading..." : "Fetch HTML"}
         </Button>
       </form>
-      {result?.error && <p>Error: {result.error}</p>}
+      {/* {result?.error && <p>Error: {result.error}</p>}
       {result?.screenshot && (
         <div>
           <div style={{ position: "relative", width: "100%", height: "300px" }}>
@@ -130,7 +144,7 @@ export default function ScreenshotComponent() {
             </div>
           )}
         </div>
-      )}
+      )} */}
     </div>
   );
 }
