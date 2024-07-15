@@ -28,3 +28,22 @@ export async function addTag(bookmarkId: number, newTag: string): Promise<{ succ
     throw error;
   }
 }
+
+
+export async function updateBookmark(bookmarkId: number, title?: string, text?: string) {
+  try {
+    const data: { title?: string; text?: string } = {};
+    if (title) data.title = title;
+    if (text) data.text = text;
+
+    await db.bookmark.update({
+      where: { id: bookmarkId },
+      data,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating bookmark:", error);
+    throw error;
+  }
+}

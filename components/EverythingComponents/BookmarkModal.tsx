@@ -1,25 +1,22 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import BookmarkCard from "./BookmarkCard";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { addTag } from "@/actions/bookmarkActions";
-import { Plus, X, Folder, Trash2, Circle } from "lucide-react";
+import { addTag, updateBookmark } from "@/actions/bookmarkActions";
+import { Plus, X, Circle, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DeleteTag } from "@/actions/DeleteTag";
+import FolderSelector from "./FolderSelector";
+import Image from "next/image";
+import { toast } from "sonner";
 import {
   addBookmarkToFolder,
   deleteBookmark,
 } from "@/actions/addOrDeleteBookmark";
 import { getFolders } from "@/actions/fetchAllFolderWithTags";
-import FolderSelector from "./FolderSelector";
-import Image from "next/image";
-import { toast } from "sonner";
+import { DeleteTag } from "@/actions/DeleteTag";
+import { getAllBookmarks } from "@/actions/getAllBookmarks";
 
 interface Folder {
   id: number;
@@ -27,6 +24,30 @@ interface Folder {
   createdAt: Date;
 }
 
+type UserRole = "ADMIN" | "USER";
+
+interface User {
+  id: string;
+  name: string | null;
+  email: string | null;
+  emailVerified: Date | null;
+  image: string | null;
+  role: UserRole;
+  password: string | null;
+}
+interface Bookmark {
+  id: number;
+  title: string | null;
+  text: string;
+  screenshot: string | null;
+  createdAt: Date;
+  folderId: number | null;
+  userId: string | null;
+  aspectRatio: number | null;
+  folder: Folder | null;
+  user: User | null;
+  tags: string;
+}
 type BookmarkCardProps = {
   screenshot: string | null;
   text: string;
@@ -36,6 +57,7 @@ type BookmarkCardProps = {
   bookmarkId: number;
   modal?: boolean;
   bookmarkHeights: number;
+  setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 };
 
 const BookmarkModal: React.FC<BookmarkCardProps> = ({
@@ -47,6 +69,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   bookmarkId,
   modal,
   bookmarkHeights,
+  setBookmarks,
 }) => {
   const link = text;
   const domain = extractDomain(link);
@@ -63,16 +86,18 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   >([]);
   const [showFolderSelector, setShowFolderSelector] = useState(false);
   const folderSelectorRef = useRef<HTMLDivElement>(null);
+  const [bookmarkTitle, setBookmarkTitle] = useState<string>(title || "");
+  const [bookmarkText, setBookmarkText] = useState<string>(text);
+  const [isOpen, setIsOpen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const handleAddToFolder = async (folderId: number) => {
     try {
       const result = await addBookmarkToFolder(bookmarkId, folderId);
       if (result.success) {
-        // Handle success (e.g., show a success message or update UI)
         setShowFolderSelector(false);
         toast.success("Bookmark added to folder successfully");
       } else {
-        // Handle error
         console.error(result.error);
         toast.error("Failed to add bookmark to folder");
       }
@@ -86,10 +111,11 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     try {
       const result = await deleteBookmark(bookmarkId);
       if (result.success) {
-        // Handle success (e.g., close the modal and update the parent component)
+        const allBookmarks = await getAllBookmarks();
+        setBookmarks(allBookmarks);
+        setIsOpen(false);
         toast.success("Bookmark deleted successfully");
       } else {
-        // Handle error
         console.error(result.error);
         toast.error("Failed to delete bookmark");
       }
@@ -105,6 +131,20 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
       setFolders(fetchedFolders);
     };
     fetchFolders();
+  }, []);
+  useEffect(() => {
+    // Function to remove focus
+    const removeFocus = () => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    };
+
+    // Set a small timeout to ensure the dialog has opened
+    const timeoutId = setTimeout(removeFocus, 100);
+
+    // Clean up the timeout
+    return () => clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
@@ -151,8 +191,33 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
       toast.error("Failed to delete tag");
     }
   };
+
+  const handleTitleBlur = async () => {
+    try {
+      await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
+      const allBookmarks = await getAllBookmarks();
+      setBookmarks(allBookmarks);
+      toast.success("Title updated successfully");
+    } catch (error) {
+      console.error("Error updating title:", error);
+      toast.error("Failed to update title");
+    }
+  };
+
+  const handleTextBlur = async () => {
+    try {
+      await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
+      const allBookmarks = await getAllBookmarks();
+      setBookmarks(allBookmarks);
+      toast.success("Text updated successfully");
+    } catch (error) {
+      console.error("Error updating text:", error);
+      toast.error("Failed to update text");
+    }
+  };
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="text-start">
         <BookmarkCard
           key={bookmarkId}
@@ -162,7 +227,12 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
           heightMultiplier={bookmarkHeights}
         />
       </DialogTrigger>
-      <DialogContent className="w-[94%] h-[85%] flex">
+      <DialogContent className="w-[94%] h-[85%] flex" ref={dialogRef}>
+        <div
+          tabIndex={-1}
+          autoFocus
+          style={{ position: "absolute", opacity: 0 }}
+        ></div>
         <section className="w-full h-full ">
           <div className="flex flex-col items-center m-[100px] h-full ">
             {screenshot ? (
@@ -174,43 +244,76 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                 className="rounded-lg object-cover"
               />
             ) : (
-              <div className="w-[500px] h-[300px] bg-gray-200 rounded-lg flex items-center justify-center">
-                <span className="text-gray-500">No screenshot available</span>
-              </div>
+              <textarea
+                value={bookmarkText}
+                onChange={(e) => setBookmarkText(e.target.value)}
+                className="w-full h-full p-4 bg-transparent text-gray-500 focus:outline-none resize-none"
+                placeholder="Enter text here"
+                // onBlur={handleTextBlur}
+                onKeyPress={(e) => e.key === "Enter" && handleTextBlur()}
+                autoFocus={false}
+              />
             )}
-            <h2 className="mt-4 text-3xl text-[#a7b4c6] font-bold font-nunito text-center">
-              {title}
-            </h2>
-            <Link
-              href={text}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 text-[#7A889D] text-[13px] underline font-nunito"
-            >
-              VISIT ORIGINAL ARTICLE
-            </Link>
+
+            {screenshot && (
+              <>
+                <div className="mt-4 text-3xl text-[#a7b4c6] font-bold font-nunito text-center bg-transparent border-none focus:outline-none">
+                  {bookmarkTitle}{" "}
+                </div>
+                <Link
+                  href={text}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 text-[#7A889D] text-[13px] underline font-nunito"
+                >
+                  VISIT ORIGINAL ARTICLE
+                </Link>
+              </>
+            )}
           </div>
         </section>
-        <section className="w-[550px] rounded-lg overflow-hidden  flex flex-col">
-          <header className="w-full h-[95px] font-nunito py-5 px-[27px] flex flex-col justify-center text-[#a7b4c6] header-gradient ">
-            <div className="text-[29px] font-extralight truncate ">{title}</div>
-            <Link
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-extralight"
-            >
-              {domain}
-            </Link>
+        <section className="w-[550px] rounded-lg overflow-hidden flex flex-col">
+          <header className="w-full h-[95px] font-nunito py-4 px-[27px] flex flex-col justify-center text-[#a7b4c6] header-gradient ">
+            {screenshot ? (
+              <>
+                <input
+                  value={bookmarkTitle}
+                  onChange={(e) => setBookmarkTitle(e.target.value)}
+                  placeholder="Title goes here"
+                  className="text-[29px] font-extralight truncate border-none p-0 text-start  focus:outline-none bg-transparent "
+                  onKeyPress={(e) => e.key === "Enter" && handleTitleBlur()}
+                  // onBlur={handleTitleBlur}
+                  autoFocus
+                />
+                <Link
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-extralight "
+                >
+                  {domain}
+                </Link>
+              </>
+            ) : (
+              <Input
+                value={bookmarkTitle}
+                onChange={(e) => setBookmarkTitle(e.target.value)}
+                placeholder="Title goes here"
+                className="text-[29px] font-extralight truncate bg-transparent border-none focus:outline-none p-0  "
+                onBlur={handleTitleBlur}
+              />
+            )}
           </header>
-          <div className="h-[calc(100%-95px)] flex flex-col justify-between  scroll bg-[#1d1e28]">
+          <div className="h-[calc(100%-95px)] flex flex-col justify-between scroll bg-[#1d1e28]">
             <div>
               <div className="Tldr text-[#748297] font-nunito p-4">
                 <div className="top-left-text "></div>
                 Content here to ensure the div is visible
               </div>
-              <div className=" overflow-scroll p-4">
-                <h3 className="text-[#a7b4c6] font-nunito mb-2">Tags:</h3>
+              <div className="overflow-scroll p-4">
+                {screenshot && (
+                  <h3 className="text-[#a7b4c6] font-nunito mb-2">Tags:</h3>
+                )}
                 <div
                   className={cn(
                     "overflow-hidden transition-all duration-300 ease-in-out",
@@ -242,7 +345,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                     />
                     <Button
                       onClick={handleAddTag}
-                      className=" bg-[#ff5924] hover:bg-[#ba3c11] h-[45px] "
+                      className="bg-[#ff5924] hover:bg-[#ba3c11] h-[45px]"
                     >
                       <Plus />
                     </Button>
@@ -252,7 +355,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                   <button
                     onClick={() => setIsAddingTag(!isAddingTag)}
                     className={cn(
-                      "bg-[#ff5924] text-white px-2.5 py-0.5 rounded-full text-sm flex items-center transition-all duration-300 font-nunito hover:bg-[#2a2b38] border border-[#ff5924] ",
+                      "bg-[#ff5924] text-white px-2.5 py-1.5 rounded-full text-sm flex items-center transition-all duration-300 font-nunito hover:bg-[#2a2b38] border border-[#ff5924] ",
                       isAddingTag
                         ? " bg-transparent "
                         : "opacity-100 translate-y-0 duration-100 "
@@ -261,27 +364,28 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                     <Plus size={13} className="mr-1" />
                     Add tag
                   </button>
-                  {tagArray.map((tag: string, index: number) => (
-                    <div
-                      key={index}
-                      className="relative group"
-                      style={{ boxShadow: "5px 5px 22px rgb(0 0 0 / 11%)" }}
-                    >
-                      <span className="bg-[#1c1e26] group-hover:bg-black text-[#748297] px-3 py-1.5 rounded-full text-sm font-nunito font-extralight inline-block border group-hover:border cursor-pointer">
-                        {tag}
-                      </span>
-                      <button
-                        onClick={() => handleDeleteTag(tag)}
-                        className="absolute -top-1 -right-1 bg-[#36373a] text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#2a2b38] border "
+                  {screenshot &&
+                    tagArray.map((tag: string, index: number) => (
+                      <div
+                        key={index}
+                        className="relative group"
+                        style={{ boxShadow: "5px 5px 22px rgb(0 0 0 / 11%)" }}
                       >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ))}
+                        <span className="bg-[#1c1e26] group-hover:bg-black text-[#748297] px-3 py-1.5 rounded-full text-sm font-nunito font-extralight inline-block border group-hover:border cursor-pointer">
+                          {tag}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteTag(tag)}
+                          className="absolute -top-1 -right-1 bg-[#36373a] text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#2a2b38] border "
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
-            <div className=" gap-3 h-[95px] relative flex  items-end pb-4 justify-center ">
+            <div className="gap-3 h-[95px] relative flex items-end pb-4 justify-center ">
               <div ref={folderSelectorRef} className="">
                 <div
                   onClick={() => setShowFolderSelector(!showFolderSelector)}

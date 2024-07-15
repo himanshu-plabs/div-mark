@@ -154,6 +154,7 @@ const EveryBookmark = () => {
               title={bookmark.title}
               tags={bookmark.tags}
               bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+              setBookmarks={setBookmarks}
             />
           </div>
         ))}
