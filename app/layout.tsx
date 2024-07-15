@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Nunito,Satisfy } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '200', '300', '600'], variable: '--font-nunito' });
@@ -26,7 +27,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <main>{children}</main>
+          <Toaster/>
         </ThemeProvider>
       </body>
     </html>

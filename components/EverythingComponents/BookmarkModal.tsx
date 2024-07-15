@@ -19,6 +19,7 @@ import {
 import { getFolders } from "@/actions/fetchAllFolderWithTags";
 import FolderSelector from "./FolderSelector";
 import Image from "next/image";
+import { toast } from "sonner";
 
 interface Folder {
   id: number;
@@ -69,12 +70,15 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
       if (result.success) {
         // Handle success (e.g., show a success message or update UI)
         setShowFolderSelector(false);
+        toast.success("Bookmark added to folder successfully");
       } else {
         // Handle error
         console.error(result.error);
+        toast.error("Failed to add bookmark to folder");
       }
     } catch (error) {
       console.error("Error adding bookmark to folder:", error);
+      toast.error("An error occurred while adding bookmark to folder");
     }
   };
 
@@ -83,12 +87,15 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
       const result = await deleteBookmark(bookmarkId);
       if (result.success) {
         // Handle success (e.g., close the modal and update the parent component)
+        toast.success("Bookmark deleted successfully");
       } else {
         // Handle error
         console.error(result.error);
+        toast.error("Failed to delete bookmark");
       }
     } catch (error) {
       console.error("Error deleting bookmark:", error);
+      toast.error("An error occurred while deleting bookmark");
     }
   };
 
@@ -126,8 +133,10 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
         setTagArray((prevTags) => [...prevTags, newTag.trim()]);
         setNewTag("");
         setIsAddingTag(false);
+        toast.success("Tag added successfully");
       } catch (error) {
         console.error("Error adding tag:", error);
+        toast.error("Failed to add tag");
       }
     }
   };
@@ -136,11 +145,12 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     try {
       await DeleteTag(bookmarkId, tagToDelete);
       setTagArray((prevTags) => prevTags.filter((tag) => tag !== tagToDelete));
+      toast.success("Tag deleted successfully");
     } catch (error) {
       console.error("Error deleting tag:", error);
+      toast.error("Failed to delete tag");
     }
   };
-
   return (
     <Dialog>
       <DialogTrigger className="text-start">
