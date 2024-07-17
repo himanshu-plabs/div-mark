@@ -15,7 +15,8 @@ type ScreenshotResponse = {
   screenshot?: string;
   html?: string;
   error?: string | undefined;
-  aspectRatio?: number
+  aspectRatio?: number;
+  ogImageBase64?: string | undefined
 };
 type ErrorResponse = { error: string };
 
@@ -59,7 +60,10 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
     return { message: "url not found" }; 
   }
     const screenshotRes: ScreenshotResponse = await TakeScreenshot(url);
-    const screenshot = screenshotRes.screenshot;
+    
+      const screenshot = screenshotRes.ogImageBase64 ? screenshotRes.ogImageBase64: screenshotRes.screenshot
+    
+    
     const html = screenshotRes.html;
     const aspectRatio = screenshotRes.aspectRatio;
     const screenshoterror = screenshotRes.error;
