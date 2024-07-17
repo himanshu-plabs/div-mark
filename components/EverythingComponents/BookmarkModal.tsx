@@ -128,6 +128,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
           }
           setBookmarks(fetchedBookmarks);
           setIsOpen(false);
+          toast.success("Bookmark deleted successfully");
         } else {
           const allBookmarks = await getAllBookmarks();
           if (!setBookmarks) {
