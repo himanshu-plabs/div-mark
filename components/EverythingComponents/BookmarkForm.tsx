@@ -81,7 +81,7 @@ const BookmarkForm = ({ setBookmarks }:BookmarkCardProps
 
   return (
     <form onSubmit={handleSubmit} className=" font-nunito mb-5">
-      <div className="w-[232px] min-h-[200px] p-5 pt-[14px] rounded-md bg-[#1e1f2a] ">
+      <div className=" aspect-square flex flex-col flex-grow p-5 pt-[14px] rounded-md bg-[#1e1f2a] ">
         <label htmlFor="textarea" className="text-[#ff5924] text-xs tracking-widest " >ADD A NEW NOTE</label>
       <textarea
         ref={textareaRef}

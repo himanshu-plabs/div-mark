@@ -1,12 +1,27 @@
 import type { Metadata } from "next";
-import { Inter, Nunito,Satisfy } from "next/font/google";
+import { Inter, Nunito, Satisfy } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 
 const inter = Inter({ subsets: ["latin"] });
-const nunito = Nunito({ subsets: ['latin'], weight: ['400', '200', '300', '600'], variable: '--font-nunito' });
-const satisfy = Satisfy({subsets:['latin'], weight:['400'],variable : '--font-satisfy'});
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "200", "300", "600"],
+  variable: "--font-nunito",
+});
+const satisfy = Satisfy({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-satisfy",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,8 +42,18 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main>{children}</main>
-          <Toaster/>
+          <ClerkProvider>
+            <body>
+              {/* <SignedOut>
+                <SignInButton />
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn> */}
+              <main>{children}</main>
+            </body>
+          </ClerkProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

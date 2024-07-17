@@ -103,8 +103,9 @@ const EveryBookmark = () => {
 
   const breakpointColumnsObj = {
     default: 6,
-    1100: 4,
-    700: 3,
+    1590: 5,
+    1332:4,
+    1092: 3,
     500: 2,
   };
 
@@ -132,12 +133,12 @@ const EveryBookmark = () => {
           </div>
         </div>
       )}
-
-      <Masonry
+<Masonry
         breakpointCols={breakpointColumnsObj}
         className="my-masonry-grid"
         columnClassName="my-masonry-grid_column"
       >
+      
         <BookmarkForm setBookmarks={setBookmarks} />
         {isLoading
           ? Array.from({ length: 10 }).map((_, index) => <SkeletonCard key={index} />)
@@ -157,7 +158,8 @@ const EveryBookmark = () => {
               />
             </div>
           ))}
-      </Masonry>
+        
+        </Masonry>
     </div>
   );
 };

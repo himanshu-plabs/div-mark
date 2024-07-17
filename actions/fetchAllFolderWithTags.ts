@@ -41,7 +41,11 @@ export async function getBookmarksByFolderId(folderId: number) {
         createdAt: true,
         folderId: true,
         userId: true,
+        user: true,
+        folder: true,
+        aspectRatio: true,
       },
+      
     });
     return bookmarks;
   } catch (error) {

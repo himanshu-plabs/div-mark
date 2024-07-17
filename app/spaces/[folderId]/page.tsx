@@ -13,15 +13,30 @@ import {
 import { CircleChevronLeft } from "lucide-react"; // Import Lucide icon
 import { SkeletonCard } from "@/components/SkeletonCard";
 
+
+type UserRole = "ADMIN" | "USER";
+
+interface User {
+  id: string;
+  name: string | null;
+  email: string | null;
+  emailVerified: Date | null;
+  image: string | null;
+  role: UserRole;
+  password: string | null;
+}
 interface Bookmark {
   id: number;
   title: string | null;
   text: string;
   screenshot: string | null;
-  tags: string;
   createdAt: Date;
   folderId: number | null;
   userId: string | null;
+  aspectRatio: number | null;
+  folder: Folder | null;
+  user: User | null;
+  tags: string;
 }
 
 interface Folder {
@@ -44,10 +59,11 @@ const FolderPage = () => {
   const [bookmarkHeights, setBookmarkHeights] = useState<{ [key: number]: number }>({});
   const [modal, setModal] = useState<boolean>(true);
   const [folderName, setFolderName] = useState<string>("");
+  const [isFolder, setIsFolder] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
-      if (!folderId) return;
+      if (!folderId) return {message:"folderId is required"};
 
       try {
         const fetchedFolder = await getFolderById(Number(folderId));
@@ -142,7 +158,9 @@ const FolderPage = () => {
                     bookmarkId={bookmark.id}
                     title={bookmark.title}
                     tags={bookmark.tags}
-                    bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+                  bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+                  setBookmarks={setBookmarks}
+                  isFolder={isFolder}
                   />
                 </div>
               ))}

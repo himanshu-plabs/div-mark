@@ -14,7 +14,10 @@ import {
   addBookmarkToFolder,
   deleteBookmark,
 } from "@/actions/addOrDeleteBookmark";
-import { getFolders } from "@/actions/fetchAllFolderWithTags";
+import {
+  getBookmarksByFolderId,
+  getFolders,
+} from "@/actions/fetchAllFolderWithTags";
 import { DeleteTag } from "@/actions/DeleteTag";
 import { getAllBookmarks } from "@/actions/getAllBookmarks";
 
@@ -57,6 +60,7 @@ type BookmarkCardProps = {
   bookmarkId: number;
   modal?: boolean;
   bookmarkHeights: number;
+  isFolder?: boolean;
   setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 };
 
@@ -70,6 +74,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   modal,
   bookmarkHeights,
   setBookmarks,
+  isFolder,
 }) => {
   const link = text;
   const domain = extractDomain(link);
@@ -111,11 +116,30 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     try {
       const result = await deleteBookmark(bookmarkId);
       if (result.success) {
-        const allBookmarks = await getAllBookmarks();
-        if(!setBookmarks){return}
-        setBookmarks(allBookmarks);
-        setIsOpen(false);
-        toast.success("Bookmark deleted successfully");
+        if (isFolder) {
+          const fetchedBookmarks = await getBookmarksByFolderId(
+            Number(folder?.id)
+          );
+          if (!setBookmarks) {
+            return {
+              message:
+                "Bookmark deleted successfully but set bookmark in not defined",
+            };
+          }
+          setBookmarks(fetchedBookmarks);
+          setIsOpen(false);
+        } else {
+          const allBookmarks = await getAllBookmarks();
+          if (!setBookmarks) {
+            return {
+              message:
+                "Bookmark deleted successfully but set bookmark in not defined",
+            };
+          }
+          setBookmarks(allBookmarks);
+          setIsOpen(false);
+          toast.success("Bookmark deleted successfully");
+        }
       } else {
         console.error(result.error);
         toast.error("Failed to delete bookmark");
@@ -197,7 +221,9 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     try {
       await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
       const allBookmarks = await getAllBookmarks();
-      if(!setBookmarks){return}
+      if (!setBookmarks) {
+        return;
+      }
       setBookmarks(allBookmarks);
       toast.success("Title updated successfully");
     } catch (error) {
@@ -210,7 +236,9 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     try {
       await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
       const allBookmarks = await getAllBookmarks();
-      if(!setBookmarks){return}
+      if (!setBookmarks) {
+        return;
+      }
       setBookmarks(allBookmarks);
       toast.success("Text updated successfully");
     } catch (error) {
@@ -221,7 +249,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="text-start">
+      <DialogTrigger className="w-full">
         <BookmarkCard
           key={bookmarkId}
           screenshot={screenshot}

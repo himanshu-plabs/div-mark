@@ -108,10 +108,10 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ screenshot, title, descript
   const height = screenshot ? Math.floor(baseHeight * heightMultiplier) : undefined;
 
   return (
-    <div className="  shadow-md overflow-hidden " style={{ width, height }}>
+    <div className="  shadow-md overflow-hidden ">
       {screenshot ? (
         <>
-          <div style={{ position: 'relative', width: '100%', height: height ? height - 40 : '160px' }}>
+          <div className='relative aspect-video flex-grow '>
             <Image
               src={`data:image/png;base64,${screenshot}`}
               alt={title || "Bookmark"}
