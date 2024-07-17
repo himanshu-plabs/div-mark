@@ -11,7 +11,6 @@ import BookmarkModal from "@/components/EverythingComponents/BookmarkModal";
 import CreateFolderAndAddBookmarks from "@/actions/CreateFolderAndAddBookmarks";
 import { SkeletonCard } from "@/components/SkeletonCard";
 
-
 // Define the types based on your Prisma schema
 type UserRole = "ADMIN" | "USER";
 
@@ -55,7 +54,9 @@ const EveryBookmark = () => {
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [bookmarkHeights, setBookmarkHeights] = useState<{ [key: number]: number }>({});
+  const [bookmarkHeights, setBookmarkHeights] = useState<{
+    [key: number]: number;
+  }>({});
   const [modal, setModal] = useState<boolean>(false);
   const [folderName, setFolderName] = useState<string>("");
   const [searchString, setSearchString] = useState<boolean>(false);
@@ -76,7 +77,9 @@ const EveryBookmark = () => {
         setBookmarks(fetchedBookmarks);
         setIsLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
         setIsLoading(false);
       }
     };
@@ -90,7 +93,10 @@ const EveryBookmark = () => {
 
   const handleCreateFolder = async () => {
     try {
-      await CreateFolderAndAddBookmarks(folderName, filteredBookmarks.map(bm => bm.id));
+      await CreateFolderAndAddBookmarks(
+        folderName,
+        filteredBookmarks.map((bm) => bm.id)
+      );
       setFolderName("");
       setModal(false);
       // Refresh bookmarks if needed
@@ -104,7 +110,7 @@ const EveryBookmark = () => {
   const breakpointColumnsObj = {
     default: 6,
     1590: 5,
-    1332:4,
+    1332: 4,
     1092: 3,
     500: 2,
   };
@@ -127,39 +133,42 @@ const EveryBookmark = () => {
               placeholder="Folder Name"
               className="border p-2 rounded-md mb-4 w-full"
             />
-            <button onClick={handleCreateFolder} className="bg-blue-500 text-white p-2 rounded-md">
+            <button
+              onClick={handleCreateFolder}
+              className="bg-blue-500 text-white p-2 rounded-md"
+            >
               Create Folder
             </button>
           </div>
         </div>
       )}
-<Masonry
+      <Masonry
         breakpointCols={breakpointColumnsObj}
         className="my-masonry-grid"
         columnClassName="my-masonry-grid_column"
       >
-      
         <BookmarkForm setBookmarks={setBookmarks} />
         {isLoading
-          ? Array.from({ length: 10 }).map((_, index) => <SkeletonCard key={index} />)
+          ? Array.from({ length: 10 }).map((_, index) => (
+              <SkeletonCard key={index} />
+            ))
           : displayedBookmarks.map((bookmark) => (
-            <div key={bookmark.id}>
-            <BookmarkModal
-                screenshot={bookmark.screenshot}
-              text={bookmark.text}
-              key={bookmark.id}
-              folder={bookmark.folder}
-              modal={modal}
-              bookmarkId={bookmark.id}
-                title={bookmark.title}
-              tags={bookmark.tags}
-              bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-              setBookmarks={setBookmarks}
-              />
-            </div>
-          ))}
-        
-        </Masonry>
+              <div key={bookmark.id}>
+                <BookmarkModal
+                  screenshot={bookmark.screenshot}
+                  text={bookmark.text}
+                  key={bookmark.id}
+                  folder={bookmark.folder}
+                  modal={modal}
+                  bookmarkId={bookmark.id}
+                  title={bookmark.title}
+                  tags={bookmark.tags}
+                  bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+                  setBookmarks={setBookmarks}
+                />
+              </div>
+            ))}
+      </Masonry>
     </div>
   );
 };

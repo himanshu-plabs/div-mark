@@ -13,7 +13,6 @@ import {
 import { CircleChevronLeft } from "lucide-react"; // Import Lucide icon
 import { SkeletonCard } from "@/components/SkeletonCard";
 
-
 type UserRole = "ADMIN" | "USER";
 
 interface User {
@@ -56,14 +55,16 @@ const FolderPage = () => {
   const [folder, setFolder] = useState<Folder | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [bookmarkHeights, setBookmarkHeights] = useState<{ [key: number]: number }>({});
+  const [bookmarkHeights, setBookmarkHeights] = useState<{
+    [key: number]: number;
+  }>({});
   const [modal, setModal] = useState<boolean>(true);
   const [folderName, setFolderName] = useState<string>("");
   const [isFolder, setIsFolder] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
-      if (!folderId) return {message:"folderId is required"};
+      if (!folderId) return { message: "folderId is required" };
 
       try {
         const fetchedFolder = await getFolderById(Number(folderId));
@@ -75,7 +76,9 @@ const FolderPage = () => {
         setBookmarks(fetchedBookmarks);
         setIsLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
         setIsLoading(false);
       }
     };
@@ -91,7 +94,9 @@ const FolderPage = () => {
     setBookmarkHeights(newHeights);
   }, [bookmarks]);
 
-  const handleFolderNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFolderNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setFolderName(event.target.value);
   };
 
@@ -99,17 +104,22 @@ const FolderPage = () => {
     if (folder && folder.name !== folderName) {
       try {
         await updateFolderName(folder.id, folderName);
-        setFolder((prevFolder) => (prevFolder ? { ...prevFolder, name: folderName } : null));
+        setFolder((prevFolder) =>
+          prevFolder ? { ...prevFolder, name: folderName } : null
+        );
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
       }
     }
   };
 
   const breakpointColumnsObj = {
     default: 6,
-    1100: 4,
-    700: 3,
+    1590: 5,
+    1332: 4,
+    1092: 3,
     500: 2,
   };
 
@@ -124,7 +134,10 @@ const FolderPage = () => {
             <div className="relative w-full mt-[40px] ">
               <div className="flex items-center">
                 <Link href="/spaces" className="">
-                  <CircleChevronLeft className="text-[#748297] transition-all duration-150 hover:text-white mr-5 mt-2 cursor-pointer" size={38} />
+                  <CircleChevronLeft
+                    className="text-[#748297] transition-all duration-150 hover:text-white mr-5 mt-2 cursor-pointer"
+                    size={38}
+                  />
                 </Link>
                 <input
                   value={folderName}
@@ -146,7 +159,9 @@ const FolderPage = () => {
           columnClassName="my-masonry-grid_column"
         >
           {isLoading
-            ? Array.from({ length: 12 }).map((_, index) => <SkeletonCard key={index} />)
+            ? Array.from({ length: 12 }).map((_, index) => (
+                <SkeletonCard key={index} />
+              ))
             : bookmarks.map((bookmark) => (
                 <div key={bookmark.id} className="">
                   <BookmarkModal
@@ -158,9 +173,9 @@ const FolderPage = () => {
                     bookmarkId={bookmark.id}
                     title={bookmark.title}
                     tags={bookmark.tags}
-                  bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-                  setBookmarks={setBookmarks}
-                  isFolder={isFolder}
+                    bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+                    setBookmarks={setBookmarks}
+                    isFolder={isFolder}
                   />
                 </div>
               ))}

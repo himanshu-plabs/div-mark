@@ -54,7 +54,7 @@ const Spaces = () => {
             <div className="moving-highlight"></div>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mt-6">
+        <div className=" grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 mt-6">
           {isLoading
             ? Array.from({ length: 12 }).map((_, index) => <SkeletonCard key={index} />)
             : folders.map((folder) => (
@@ -62,7 +62,7 @@ const Spaces = () => {
                   <Link href={`/spaces/${folder.id}`}>
                     <div className="cursor-pointer">
                       {folder.firstBookmark && folder.firstBookmark.screenshot ? (
-                        <div style={{ position: 'relative', width: '250px', height: '150px' }}>
+                        <div style={{ position: 'relative'}} className=" aspect-video">
                           <Image
                             src={`data:image/png;base64,${folder.firstBookmark.screenshot}`}
                             alt={folder.name}
