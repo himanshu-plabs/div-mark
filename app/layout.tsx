@@ -10,6 +10,7 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
+import { dark } from '@clerk/themes';
 
 const inter = Inter({ subsets: ["latin"] });
 const nunito = Nunito({
@@ -42,7 +43,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ClerkProvider>
+          <ClerkProvider
+          appearance={{
+            baseTheme: dark
+          }}>
             <body>
               {/* <SignedOut>
                 <SignInButton />

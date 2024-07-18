@@ -1,11 +1,11 @@
 "use server";
 import { db } from "@/lib/db";
-import React from "react";
 import { TakeScreenshot } from "./Screenshot";
 import { analyzeContentAndURL } from "@/app/Tags/actions";
 import { fetchAllFoldersWithTags } from "./fetchAllFolderWithTags";
 import { findSuitableFolder } from "./findSuitableFolder";
 import { findSuitableFolderForText } from "./findSuitableFolderForText";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 type CreateBookmarkProps = {
   url?: string;
@@ -20,7 +20,11 @@ type ScreenshotResponse = {
 };
 type ErrorResponse = { error: string };
 
-const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
+const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
+  const { userId } = auth();
+  if (!userId) { 
+    return { error:"Invalid user"}
+  }
   try {
     if (Text) {
       const folders = await fetchAllFoldersWithTags();
@@ -38,6 +42,7 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
           data: {
             text: Text,
             tags: Text,
+            userId
           },
         });
 
@@ -51,6 +56,7 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
           text: Text,
           tags: Text,
           folderId: folder.id,
+          userId
         },
       });
 
@@ -96,7 +102,8 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
           text: url,
           tags,
           screenshot,
-          aspectRatio
+          aspectRatio,
+          userId
         },
       });
       console.log('folder not found so bookmark created successfully without connecting to any folder')
@@ -113,7 +120,8 @@ const CreateBookmark = async ({url,Text}: CreateBookmarkProps) => {
         tags,
         screenshot,
         folderId: Folder.id,
-        aspectRatio
+        aspectRatio,
+        userId
       },
     });
     console.log("success");
