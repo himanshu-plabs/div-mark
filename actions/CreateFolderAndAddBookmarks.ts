@@ -15,6 +15,19 @@ export default async function CreateFolderAndAddBookmarks(
     
   }
   try {
+    const alreadyExists = await db.folder.findFirst({
+      where: {
+        name: folderName,
+        userId
+      }
+    })
+    if (alreadyExists) {
+      console.log("Already exists")
+      return {
+
+        error: "Folder already exists",     
+      }
+    }
     const folder = await db.folder.create({
       data: {
         name: folderName,

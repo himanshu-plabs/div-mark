@@ -18,13 +18,26 @@ export const CreateFolder = async (folderName: string) => {
   }
 
   try {
-    const folder = await db.folder.create({
-      data: {
+    const alreadyExists = await db.folder.findFirst({
+      where: {
         name: folderName,
         userId
-      },
-    });
-    return folder;
+      }
+    })
+    if (alreadyExists) { 
+      return {
+        message: "Folder already exists",
+      }
+    } else {
+      const folder = await db.folder.create({
+        data: {
+          name: folderName,
+          userId
+        },
+      });
+      return folder;
+    }
+    
   } catch (error) {
     throw new Error(`Error creating folder: ${(error as Error).message}`);
   }

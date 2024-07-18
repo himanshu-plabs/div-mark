@@ -51,7 +51,7 @@ model Account {
 
 model Folder {
   id        Int       @id @default(autoincrement())
-  name      String    @unique
+  name      String   
   createdAt DateTime  @default(now())
   bookmarks Bookmark[]
   userId    String

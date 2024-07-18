@@ -35,11 +35,10 @@ interface Bookmark {
   screenshot: string | null;
   createdAt: Date;
   folderId: number | null;
-  userId: string ;
+  userId: string;
   aspectRatio: number | null;
   folder: Folder | null;
   tags: string;
-  
 }
 interface BookmarkError {
   error?: string;
@@ -66,8 +65,8 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
       if (tags) {
         try {
           const response = await SearchBookmarks(tags);
-          
-          if ('error' in response) {
+
+          if ("error" in response) {
             // Handle error case
             console.error("Error fetching bookmarks:", response.error);
             toast.error("Failed to fetch bookmarks");
@@ -96,13 +95,21 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
   }, [tags, setFilteredBookmarks]);
 
   const handleCreateFolder = async () => {
-    
     const bookmarkIds = filteredBookmarks.map((bookmark) => bookmark.id);
     try {
-      await CreateFolderAndAddBookmarks(folderName, bookmarkIds);
-      setIsOpen(false);
-      setFolderName("");
-      toast.success("Folder created and bookmarks added successfully");
+      const response = await CreateFolderAndAddBookmarks(
+        folderName,
+        bookmarkIds
+      );
+      if ("error" in response) {
+        toast.error("Failed to create folder and add bookmarks");
+        setIsOpen(false);
+        setFolderName("");
+      } else {
+        toast.success("Folder created and bookmarks added successfully");
+        setIsOpen(false);
+        setFolderName("");
+      }
     } catch (error) {
       console.error("Error creating folder and adding bookmarks:", error);
       toast.error("Failed to create folder and add bookmarks");
