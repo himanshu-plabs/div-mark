@@ -72,7 +72,7 @@
 import puppeteer from "puppeteer";
 import axios from "axios";
 
-const MAX_HTML_LENGTH = 1000; // Adjust as needed
+const MAX_HTML_LENGTH = 3000; // Adjust as needed
 
 const fetchImageAsBase64 = async (imageUrl: string): Promise<string | undefined> => {
   try {

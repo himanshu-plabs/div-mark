@@ -1,36 +1,57 @@
 "use server";
 import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
 
 async function SearchBookmarks(tagsToSearch: string) {
-  // Split the input string into an array of tags
+ 
+  const { userId } = auth();
+  if (!userId) {
+    return{
+      error: "Invalid user"
+    }
+    
+  }
+  try {
+    const bookmarks = await db.bookmark.findMany({
+      include: {
+        folder: true,
+      },
+      where: {
+        userId,
+        OR: [
+          {
+            tags: {
+              contains: tagsToSearch,
+              mode: "insensitive",
+            },
+          },
+          {
+            text: {
+              contains: tagsToSearch,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+    });
+    return bookmarks;
+  } catch (error) {
+    return {
+      error:'failed to search'
+    }
+  }
+  
+  
+}
+
+export default SearchBookmarks;
+
+
+ // Split the input string into an array of tags
 
   // const tagsArray = tagsToSearch.split(",").map((tag) => tag.trim());
 
-  // Fetch all bookmarks
-  const bookmarks = await db.bookmark.findMany({
-    include: {
-      folder: true,
-      user: true,
-    },
-    where: {
-      OR: [
-        {
-          tags: {
-            contains: tagsToSearch,
-            mode: "insensitive",
-          },
-        },
-        {
-          text: {
-            contains: tagsToSearch,
-            mode: "insensitive",
-          },
-        },
-      ],
-    },
-  });
-  return bookmarks;
-  // Rank the bookmarks based on the number of matching tags
+// Rank the bookmarks based on the number of matching tags
   // const rankedBookmarks = bookmarks
   //   .map((bookmark) => {
   //     const matchingTags = bookmark.tags.filter((tag) =>
@@ -44,6 +65,3 @@ async function SearchBookmarks(tagsToSearch: string) {
   //   .filter((bookmark) => bookmark.matchCount > 0)
   //     .sort((a, b) => b.matchCount - a.matchCount);
   //     return rankedBookmarks;
-}
-
-export default SearchBookmarks;

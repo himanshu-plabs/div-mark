@@ -21,6 +21,7 @@ interface Folder {
   id: number;
   name: string;
   createdAt: Date;
+  userId: string
 }
 
 interface Bookmark {
@@ -30,10 +31,9 @@ interface Bookmark {
   screenshot: string | null;
   createdAt: Date;
   folderId: number | null;
-  userId: string | null;
+  userId: string ;
   aspectRatio: number | null;
   folder: Folder | null;
-  user: User | null;
   tags: string ;
 }
 type BookmarkCardProps = {
@@ -47,17 +47,27 @@ const BookmarkForm = ({ setBookmarks }:BookmarkCardProps
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true); // Set loading state to true during submission
+    setIsLoading(true);
     try {
-      // Handle the form submission logic
       await CreateBookmark({ Text: text });
       const allBookmarks = await getAllBookmarks();
-      setBookmarks(allBookmarks)
+      
+      if ('error' in allBookmarks) {
+        // Handle error case
+        console.error("Error fetching bookmarks:", allBookmarks.error);
+        // Optionally, you can set an error state here if you have one
+        // setError(allBookmarks.error);
+      } else {
+        // Handle success case
+        setBookmarks(allBookmarks);
+      }
       setText("");
     } catch (error) {
       console.error("Error creating bookmark:", error);
+      // Optionally, you can set an error state here if you have one
+      // setError(error instanceof Error ? error.message : "An unknown error occurred");
     } finally {
-      setIsLoading(false); // Reset loading state after submission completes
+      setIsLoading(false);
     }
   };
 

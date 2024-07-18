@@ -7,7 +7,7 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { analyzeContentAndURL, generatTags } from "@/app/Tags/actions";
 import CreateBookmark from "@/actions/CreateBookmark";
-import {toast} from 'sonner'
+import { toast } from "sonner";
 
 // Define types for the responses
 type ScreenshotResponse = {
@@ -107,7 +107,6 @@ export default function ScreenshotComponent() {
           placeholder="Enter URL"
         /> */}
 
-        
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}

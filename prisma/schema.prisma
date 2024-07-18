@@ -28,7 +28,6 @@ model User {
   role          UserRole  @default(USER)
   password      String?     
   accounts      Account[]
-  bookmarks     Bookmark[]
 }
 
 model Account {
@@ -55,6 +54,7 @@ model Folder {
   name      String    @unique
   createdAt DateTime  @default(now())
   bookmarks Bookmark[]
+  userId    String
 }
 
 model Bookmark {
@@ -66,7 +66,6 @@ model Bookmark {
   createdAt DateTime @default(now())
   folderId  Int?
   folder    Folder?  @relation(fields: [folderId], references: [id])
-  userId    String?
-  user      User?     @relation(fields: [userId], references: [id])
+  userId    String
   aspectRatio Int?
 }

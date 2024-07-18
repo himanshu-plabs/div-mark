@@ -31,10 +31,9 @@ interface Bookmark {
   screenshot: string | null;
   createdAt: Date;
   folderId: number | null;
-  userId: string | null;
+  userId: string ;
   aspectRatio: number | null;
   folder: Folder | null;
-  user: User | null;
   tags: string;
 }
 
@@ -42,6 +41,7 @@ interface Folder {
   id: number;
   name: string;
   createdAt: Date;
+  userId: string;
 }
 
 const getRandomHeightMultiplier = () => {
@@ -64,27 +64,41 @@ const FolderPage = () => {
 
   useEffect(() => {
     const fetchBookmarks = async () => {
-      if (!folderId) return { message: "folderId is required" };
-
+      if (!folderId) {
+        setError("folderId is required");
+        setIsLoading(false);
+        return;
+      }
+  
       try {
         const fetchedFolder = await getFolderById(Number(folderId));
-        if (!fetchedFolder) return;
+        if (!fetchedFolder) {
+          setError("Folder not found");
+          setIsLoading(false);
+          return;
+        }
         setFolder(fetchedFolder);
-        setFolderName(fetchedFolder.name); // Initialize folderName state
-
+        setFolderName(fetchedFolder.name);
+  
         const fetchedBookmarks = await getBookmarksByFolderId(Number(folderId));
-        setBookmarks(fetchedBookmarks);
-        setIsLoading(false);
+        
+        if ('error' in fetchedBookmarks) {
+          // Handle error case
+          setError(fetchedBookmarks.error);
+          setBookmarks([]);
+        } else {
+          // Handle success case
+          setBookmarks(fetchedBookmarks);
+        }
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
+      } finally {
         setIsLoading(false);
       }
     };
+  
     fetchBookmarks();
   }, [folderId]);
-
   useEffect(() => {
     const newHeights = bookmarks.reduce((acc, bookmark) => {
       acc[bookmark.id] = getRandomHeightMultiplier();

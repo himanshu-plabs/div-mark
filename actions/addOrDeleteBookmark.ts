@@ -1,10 +1,18 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
 export async function addBookmarkToFolder(
   bookmarkId: number,
   folderId: number
 ) {
+  const { userId } = auth();
+  if (!userId) {
+    return{
+      error: "Invalid user"
+    }
+    
+  }
   try {
     await db.bookmark.update({
       where: { id: bookmarkId },

@@ -16,6 +16,7 @@ interface Folder {
   name: string;
   createdAt: Date;
   firstBookmark: Bookmark | null;
+  
 }
 
 const Spaces = () => {
@@ -27,13 +28,22 @@ const Spaces = () => {
     const fetchFolders = async () => {
       try {
         const fetchedFolders = await getFoldersWithFirstBookmark();
-        setFolders(fetchedFolders);
-        setIsLoading(false);
+        
+        if ('error' in fetchedFolders) {
+          // Handle error case
+          setError(fetchedFolders.error);
+          setFolders([]);
+        } else {
+          // Handle success case
+          setFolders(fetchedFolders);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred");
+      } finally {
         setIsLoading(false);
       }
     };
+  
     fetchFolders();
   }, []);
 

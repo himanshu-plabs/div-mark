@@ -7,6 +7,7 @@ import { Input } from "../ui/input";
 import logo from "@/public/logo.png";
 import Image from "next/image";
 import { toast } from "sonner";
+import { error } from "console";
 
 type UserRole = "ADMIN" | "USER";
 
@@ -24,6 +25,7 @@ interface Folder {
   id: number;
   name: string;
   createdAt: Date;
+  userId: string;
 }
 
 interface Bookmark {
@@ -33,11 +35,14 @@ interface Bookmark {
   screenshot: string | null;
   createdAt: Date;
   folderId: number | null;
-  userId: string | null;
+  userId: string ;
   aspectRatio: number | null;
   folder: Folder | null;
-  user: User | null;
   tags: string;
+  
+}
+interface BookmarkError {
+  error?: string;
 }
 
 interface BookmarkSearchProps {
@@ -61,12 +66,24 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
       if (tags) {
         try {
           const response = await SearchBookmarks(tags);
-          setSearchString(true);
-          setFilteredBookmarks(response);
-          setLocalFilteredBookmarks(response);
+          
+          if ('error' in response) {
+            // Handle error case
+            console.error("Error fetching bookmarks:", response.error);
+            toast.error("Failed to fetch bookmarks");
+            setFilteredBookmarks([]);
+            setLocalFilteredBookmarks([]);
+          } else {
+            // Handle success case
+            setSearchString(true);
+            setFilteredBookmarks(response);
+            setLocalFilteredBookmarks(response);
+          }
         } catch (error) {
           console.error("Error fetching bookmarks:", error);
           toast.error("Failed to fetch bookmarks");
+          setFilteredBookmarks([]);
+          setLocalFilteredBookmarks([]);
         }
       } else {
         setFilteredBookmarks([]);
@@ -79,6 +96,7 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
   }, [tags, setFilteredBookmarks]);
 
   const handleCreateFolder = async () => {
+    
     const bookmarkIds = filteredBookmarks.map((bookmark) => bookmark.id);
     try {
       await CreateFolderAndAddBookmarks(folderName, bookmarkIds);

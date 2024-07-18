@@ -25,6 +25,7 @@ interface Folder {
   id: number;
   name: string;
   createdAt: Date;
+  userId: string;
 }
 
 type UserRole = "ADMIN" | "USER";
@@ -45,10 +46,9 @@ interface Bookmark {
   screenshot: string | null;
   createdAt: Date;
   folderId: number | null;
-  userId: string | null;
+  userId: string ;
   aspectRatio: number | null;
   folder: Folder | null;
-  user: User | null;
   tags: string;
 }
 type BookmarkCardProps = {
@@ -116,31 +116,31 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     try {
       const result = await deleteBookmark(bookmarkId);
       if (result.success) {
-        if (isFolder) {
-          const fetchedBookmarks = await getBookmarksByFolderId(
-            Number(folder?.id)
-          );
+        if (isFolder && folder) {
+          const fetchedBookmarks = await getBookmarksByFolderId(Number(folder.id));
+          if ('error' in fetchedBookmarks) {
+            toast.error(`Error fetching bookmarks: ${fetchedBookmarks.error}`);
+            return;
+          }
           if (!setBookmarks) {
-            return {
-              message:
-                "Bookmark deleted successfully but set bookmark in not defined",
-            };
+            toast.error("SetBookmarks function is not defined");
+            return;
           }
           setBookmarks(fetchedBookmarks);
-          setIsOpen(false);
-          toast.success("Bookmark deleted successfully");
         } else {
           const allBookmarks = await getAllBookmarks();
+          if ('error' in allBookmarks) {
+            toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+            return;
+          }
           if (!setBookmarks) {
-            return {
-              message:
-                "Bookmark deleted successfully but set bookmark in not defined",
-            };
+            toast.error("SetBookmarks function is not defined");
+            return;
           }
           setBookmarks(allBookmarks);
-          setIsOpen(false);
-          toast.success("Bookmark deleted successfully");
         }
+        setIsOpen(false);
+        toast.success("Bookmark deleted successfully");
       } else {
         console.error(result.error);
         toast.error("Failed to delete bookmark");
@@ -153,8 +153,17 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
 
   useEffect(() => {
     const fetchFolders = async () => {
-      const fetchedFolders = await getFolders();
-      setFolders(fetchedFolders);
+      try {
+        const fetchedFolders = await getFolders();
+        if ('error' in fetchedFolders) {
+          toast.error(`Error fetching folders: ${fetchedFolders.error}`);
+          return;
+        }
+        setFolders(fetchedFolders);
+      } catch (error) {
+        console.error("Error fetching folders:", error);
+        toast.error("An error occurred while fetching folders");
+      }
     };
     fetchFolders();
   }, []);
@@ -222,7 +231,12 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     try {
       await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
       const allBookmarks = await getAllBookmarks();
+      if ('error' in allBookmarks) {
+        toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+        return;
+      }
       if (!setBookmarks) {
+        toast.error("SetBookmarks function is not defined");
         return;
       }
       setBookmarks(allBookmarks);
@@ -232,11 +246,17 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
       toast.error("Failed to update title");
     }
   };
+  
+  // Similar changes for handleTextBlur
 
   const handleTextBlur = async () => {
     try {
       await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
       const allBookmarks = await getAllBookmarks();
+      if ('error' in allBookmarks) {
+        toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+        return;
+      }
       if (!setBookmarks) {
         return;
       }

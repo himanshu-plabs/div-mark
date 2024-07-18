@@ -1,14 +1,24 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
 import { revalidateTag } from "next/cache";
 import { redirect } from 'next/navigation'
 
 export async function getAllBookmarks() {
+  const { userId } = auth();
+  if (!userId) {
+    return{
+      error: "Invalid user"
+    }
+    
+  }
   try {
     const allBookmarksWithUserAndFolder = await db.bookmark.findMany({
+      where: {
+        userId
+      },
       include: {
-        user: true,
         folder: true,
       },
       orderBy: {

@@ -28,6 +28,7 @@ interface Folder {
   id: number;
   name: string;
   createdAt: Date;
+  userId: string
 }
 
 interface Bookmark {
@@ -37,10 +38,9 @@ interface Bookmark {
   screenshot: string | null;
   createdAt: Date;
   folderId: number | null;
-  userId: string | null;
+  userId: string;
   aspectRatio: number | null;
   folder: Folder | null;
-  user: User | null;
   tags: string;
 }
 
@@ -74,12 +74,18 @@ const EveryBookmark = () => {
     const fetchBookmarks = async () => {
       try {
         const fetchedBookmarks = await getAllBookmarks();
-        setBookmarks(fetchedBookmarks);
-        setIsLoading(false);
+        
+        if ('error' in fetchedBookmarks) {
+          // Handle error case
+          setError(fetchedBookmarks.error);
+          setBookmarks([]);
+        } else {
+          // Handle success case
+          setBookmarks(fetchedBookmarks);
+        }
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
+      } finally {
         setIsLoading(false);
       }
     };

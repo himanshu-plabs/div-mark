@@ -28,6 +28,11 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
   try {
     if (Text) {
       const folders = await fetchAllFoldersWithTags();
+      if ('error' in folders) {
+        console.error("Error fetching folders:", folders.error);
+        return { error: "Failed to fetch folders" };
+      }
+  
       const suitableFolderName = await findSuitableFolderForText(folders, Text);
 
       let folder;
@@ -82,8 +87,14 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
     const tagsRes = await analyzeContentAndURL(url, html);
     const tags = tagsRes.tags;
     const title = tagsRes.title;
-
+    if (!tags) {
+  console.log('no tags')
+}
     const folders = await fetchAllFoldersWithTags();
+    if ('error' in folders) {
+      console.error("Error fetching folders:", folders.error);
+      return { error: "Failed to fetch folders" };
+    }
 
     const suitableFolderName = await findSuitableFolder(folders, tags,url);
 
@@ -91,7 +102,7 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
     if (suitableFolderName) {
       // Use the suitable folder
       Folder = await db.folder.findFirst({
-        where: { name: suitableFolderName },
+        where: { name: suitableFolderName,userId },
       });
     }
 
