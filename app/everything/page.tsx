@@ -10,39 +10,7 @@ import { getAllBookmarks } from "@/actions/getAllBookmarks";
 import BookmarkModal from "@/components/EverythingComponents/BookmarkModal";
 import CreateFolderAndAddBookmarks from "@/actions/CreateFolderAndAddBookmarks";
 import { SkeletonCard } from "@/components/SkeletonCard";
-
-// Define the types based on your Prisma schema
-type UserRole = "ADMIN" | "USER";
-
-interface User {
-  id: string;
-  name: string | null;
-  email: string | null;
-  emailVerified: Date | null;
-  image: string | null;
-  role: UserRole;
-  password: string | null;
-}
-
-interface Folder {
-  id: number;
-  name: string;
-  createdAt: Date;
-  userId: string
-}
-
-interface Bookmark {
-  id: number;
-  title: string | null;
-  text: string;
-  screenshot: string | null;
-  createdAt: Date;
-  folderId: number | null;
-  userId: string;
-  aspectRatio: number | null;
-  folder: Folder | null;
-  tags: string;
-}
+import { Bookmark, Folder } from "@/lib/schema";
 
 const getRandomHeightMultiplier = () => {
   const multipliers = [1, 0.8, 1, 1.1, 1.2, 0.7, 1.3];

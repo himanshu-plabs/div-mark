@@ -5,38 +5,7 @@ import { Button } from "../ui/button";
 import CreateBookmark from "@/actions/CreateBookmark";
 import { getAllBookmarks } from "@/actions/getAllBookmarks";
 import { toast } from "sonner";
-
-type UserRole = "ADMIN" | "USER";
-
-interface User {
-  id: string;
-  name: string | null;
-  email: string | null;
-  emailVerified: Date | null;
-  image: string | null;
-  role: UserRole;
-  password: string | null;
-}
-
-interface Folder {
-  id: number;
-  name: string;
-  createdAt: Date;
-  userId: string;
-}
-
-interface Bookmark {
-  id: number;
-  title: string | null;
-  text: string;
-  screenshot: string | null;
-  createdAt: Date;
-  folderId: number | null;
-  userId: string;
-  aspectRatio: number | null;
-  folder: Folder | null;
-  tags: string;
-}
+import { Bookmark, Folder } from "@/lib/schema";
 type BookmarkCardProps = {
   setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 };
