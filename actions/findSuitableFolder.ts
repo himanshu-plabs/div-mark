@@ -56,7 +56,7 @@ interface FolderSchema {
   folderName: string | false;
 }
 
-// Define the schema
+
 const folderSchema: Record<string, unknown> = {
   properties: {
     folderName: { type: ["string", "boolean"] },
@@ -65,7 +65,7 @@ const folderSchema: Record<string, unknown> = {
   type: "object",
 };
 
-// Function to find a suitable folder
+
 export const findSuitableFolder = async (folders: any[], newTags: string,url:string): Promise<string | false> => {
   const prompt = `
     Here are the existing folders and their tags: ${JSON.stringify(folders)}.
@@ -101,7 +101,7 @@ export const findSuitableFolder = async (folders: any[], newTags: string,url:str
         content: prompt,
       },
     ],
-    model: "llama3-70b-8192", // Ensure you have the correct model name here
+    model: "llama3-70b-8192", 
     temperature: 0,
     stream: false,
     response_format: { type: "json_object" },
@@ -116,4 +116,4 @@ export const findSuitableFolder = async (folders: any[], newTags: string,url:str
   return result.folderName;
 }
 
-// Example usage
+

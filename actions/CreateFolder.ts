@@ -2,8 +2,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { error } from "console";
+import { auth } from "@clerk/nextjs/server";
+
 
 export const CreateFolder = async (folderName: string) => {
   const { userId } = auth();

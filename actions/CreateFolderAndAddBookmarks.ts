@@ -36,6 +36,7 @@ export default async function CreateFolderAndAddBookmarks(
     await db.bookmark.updateMany({
       where: {
         id: { in: bookmarkIds },
+        userId
       },
       data: {
         folderId: folder.id,
