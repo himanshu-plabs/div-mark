@@ -122,7 +122,7 @@ export const TakeScreenshot = async (
     return { screenshot, html: limitedHtml, aspectRatio, ogImageBase64 };
   } catch (error) {
     console.error("Error in TakeScreenshot:", error);
-    return { error: error instanceof Error ? error.message : String(error) };
+    return { error: "failed to take screenshot" };
   } finally {
     if (browser) {
       await browser.close();

@@ -5,7 +5,7 @@ import { analyzeContentAndURL } from "@/app/Tags/actions";
 import { fetchAllFoldersWithTags } from "./fetchAllFolderWithTags";
 import { findSuitableFolder } from "./findSuitableFolder";
 import { findSuitableFolderForText } from "./findSuitableFolderForText";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 type CreateBookmarkProps = {
   url?: string;
@@ -16,43 +16,45 @@ type ScreenshotResponse = {
   html?: string;
   error?: string | undefined;
   aspectRatio?: number;
-  ogImageBase64?: string | undefined
+  ogImageBase64?: string | undefined;
 };
 type ErrorResponse = { error: string };
 
 const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
   const { userId } = auth();
-  if (!userId) { 
-    return { error:"Invalid user"}
+  if (!userId) {
+    return { error: "Invalid user" };
   }
   try {
     if (Text) {
       const folders = await fetchAllFoldersWithTags();
-      if ('error' in folders) {
+      if ("error" in folders) {
         console.error("Error fetching folders:", folders.error);
         return { error: "Failed to fetch folders" };
       }
-  
+
       const suitableFolderName = await findSuitableFolderForText(folders, Text);
 
       let folder;
       if (suitableFolderName) {
         folder = await db.folder.findFirst({
-          where: { name: suitableFolderName },
+          where: { name: suitableFolderName,userId },
         });
       }
+      console.log(suitableFolderName);
 
       if (!folder) {
         await db.bookmark.create({
           data: {
             text: Text,
             tags: Text,
-            userId
+            userId,
           },
         });
 
         return {
-          message: "Folder not found, so bookmark created successfully without connecting to any folder.",
+          message:
+            "bookmark created successfully without connecting to any folder",
         };
       }
 
@@ -61,48 +63,51 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
           text: Text,
           tags: Text,
           folderId: folder.id,
-          userId
+          userId,
         },
       });
 
       return { message: "Bookmark created and added to the suitable folder." };
     }
     if (!url) {
-    return { message: "url not found" }; 
-  }
+      return { error: "url not found" };
+    }
     const screenshotRes: ScreenshotResponse = await TakeScreenshot(url);
-    
-      const screenshot = screenshotRes.ogImageBase64 ? screenshotRes.ogImageBase64: screenshotRes.screenshot
-    
-    
+    if (screenshotRes.error) {
+      return {error: screenshotRes.error}
+    }
+
+    const screenshot = screenshotRes.ogImageBase64
+      ? screenshotRes.ogImageBase64
+      : screenshotRes.screenshot;
+
     const html = screenshotRes.html;
     const aspectRatio = screenshotRes.aspectRatio;
-    const screenshoterror = screenshotRes.error;
-    if (screenshoterror) {
-      return screenshoterror;
-    }
+    
     if (!html) {
-      return { message: "html is required" };
+      return { error: "failed to fetch html" };
     }
     const tagsRes = await analyzeContentAndURL(url, html);
     const tags = tagsRes.tags;
     const title = tagsRes.title;
     if (!tags) {
-  console.log('no tags')
-}
+      console.log("no tags");
+      return {error: "failed to generate tags"}
+      
+    }
     const folders = await fetchAllFoldersWithTags();
-    if ('error' in folders) {
+    if ("error" in folders) {
       console.error("Error fetching folders:", folders.error);
       return { error: "Failed to fetch folders" };
     }
 
-    const suitableFolderName = await findSuitableFolder(folders, tags,url);
+    const suitableFolderName = await findSuitableFolder(folders, tags, url);
 
     let Folder;
     if (suitableFolderName) {
       // Use the suitable folder
       Folder = await db.folder.findFirst({
-        where: { name: suitableFolderName,userId },
+        where: { name: suitableFolderName, userId },
       });
     }
 
@@ -114,13 +119,15 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
           tags,
           screenshot,
           aspectRatio,
-          userId
+          userId,
         },
       });
-      console.log('folder not found so bookmark created successfully without connecting to any folder')
+      console.log(
+        "folder not found so bookmark created successfully without connecting to any folder"
+      );
       return {
         message:
-          "folder not found so bookmark created successfully without connecting to any folder",
+          "bookmark created successfully!!! without connecting to any folder",
       };
     }
 
@@ -132,12 +139,15 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
         screenshot,
         folderId: Folder.id,
         aspectRatio,
-        userId
+        userId,
       },
     });
     console.log("success");
+    return {message: "bookmark created successfully and added to suitable folder"}
+    
   } catch (error) {
     console.log(error);
+    return {error: "failed to create bookmark"}
   }
 };
 

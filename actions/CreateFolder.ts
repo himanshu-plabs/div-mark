@@ -14,7 +14,7 @@ export const CreateFolder = async (folderName: string) => {
     
   }
   if (!folderName) {
-    throw new Error("Folder name is required");
+    return { error: 'Folder name is required' };
   }
 
   try {
@@ -26,7 +26,7 @@ export const CreateFolder = async (folderName: string) => {
     })
     if (alreadyExists) { 
       return {
-        message: "Folder already exists",
+        error: "Folder already exists",
       }
     } else {
       const folder = await db.folder.create({
@@ -35,10 +35,10 @@ export const CreateFolder = async (folderName: string) => {
           userId
         },
       });
-      return folder;
+      return {success:folder};
     }
     
   } catch (error) {
-    throw new Error(`Error creating folder: ${(error as Error).message}`);
+    return { error: "Failed to create folder"}
   }
 };

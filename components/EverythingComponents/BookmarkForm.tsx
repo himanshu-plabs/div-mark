@@ -4,6 +4,7 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import CreateBookmark from "@/actions/CreateBookmark";
 import { getAllBookmarks } from "@/actions/getAllBookmarks";
+import { toast } from "sonner";
 
 type UserRole = "ADMIN" | "USER";
 
@@ -21,7 +22,7 @@ interface Folder {
   id: number;
   name: string;
   createdAt: Date;
-  userId: string
+  userId: string;
 }
 
 interface Bookmark {
@@ -31,17 +32,16 @@ interface Bookmark {
   screenshot: string | null;
   createdAt: Date;
   folderId: number | null;
-  userId: string ;
+  userId: string;
   aspectRatio: number | null;
   folder: Folder | null;
-  tags: string ;
+  tags: string;
 }
 type BookmarkCardProps = {
-  setBookmarks:React.Dispatch<React.SetStateAction<Bookmark[]>>
-}
+  setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+};
 
-const BookmarkForm = ({ setBookmarks }:BookmarkCardProps
- ) => {
+const BookmarkForm = ({ setBookmarks }: BookmarkCardProps) => {
   const [text, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -49,10 +49,14 @@ const BookmarkForm = ({ setBookmarks }:BookmarkCardProps
     e.preventDefault();
     setIsLoading(true);
     try {
-      await CreateBookmark({ Text: text });
+      const response = await CreateBookmark({ Text: text });
+      if (!response.message) {
+        toast.error(response.error);
+      }
+      toast.success(response.message);
       const allBookmarks = await getAllBookmarks();
-      
-      if ('error' in allBookmarks) {
+
+      if ("error" in allBookmarks) {
         // Handle error case
         console.error("Error fetching bookmarks:", allBookmarks.error);
         // Optionally, you can set an error state here if you have one
@@ -75,12 +79,11 @@ const BookmarkForm = ({ setBookmarks }:BookmarkCardProps
     const textarea = textareaRef.current;
     if (textarea) {
       // Reset height - important to shrink on delete
-      textarea.style.height = 'auto';
+      textarea.style.height = "auto";
       // Set height based on scroll height
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
   }, [text]);
-
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -92,20 +95,25 @@ const BookmarkForm = ({ setBookmarks }:BookmarkCardProps
   return (
     <form onSubmit={handleSubmit} className=" font-nunito mb-5">
       <div className=" aspect-square flex flex-col flex-grow p-5 pt-[14px] rounded-md bg-[#1e1f2a] ">
-        <label htmlFor="textarea" className="text-[#ff5924] text-xs tracking-widest " >ADD A NEW NOTE</label>
-      <textarea
-        ref={textareaRef}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Start typing here..."
-        rows={4}
-        className="w-full rounded-md border-none resize-none focus:ring-0 focus:outline-none bg-transparent placeholder-[#5f697e]   overflow-hidden"
-        style={{
-          minHeight: '4em', // Ensure the textarea has an initial height corresponding to 4 rows
-        }}
-      />
-</div>
+        <label
+          htmlFor="textarea"
+          className="text-[#ff5924] text-xs tracking-widest "
+        >
+          ADD A NEW NOTE
+        </label>
+        <textarea
+          ref={textareaRef}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Start typing here..."
+          rows={4}
+          className="w-full rounded-md border-none resize-none focus:ring-0 focus:outline-none bg-transparent placeholder-[#5f697e]   overflow-hidden"
+          style={{
+            minHeight: "4em", // Ensure the textarea has an initial height corresponding to 4 rows
+          }}
+        />
+      </div>
       {/* <Button type="submit" className="mt-2" disabled={isLoading}>
         {isLoading ? "Submitting..." : "Submit"}
       </Button> */}

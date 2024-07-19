@@ -11,7 +11,7 @@ export async function DeleteTag(bookmarkId: number, tagToDelete: string) {
       });
   
       if (!bookmark) {
-        throw new Error("Bookmark not found");
+        return { error: "Bookmark not found"}
       }
   
       const updatedTags = bookmark.tags
@@ -28,6 +28,6 @@ export async function DeleteTag(bookmarkId: number, tagToDelete: string) {
       return { success: true };
     } catch (error) {
       console.error("Error deleting tag:", error);
-      throw error;
+      return { error: "Error in deleting tag"}
     }
   }

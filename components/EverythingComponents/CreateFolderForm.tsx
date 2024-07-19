@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CreateFolder } from "@/actions/CreateFolder";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
 
 export default function CreateFolderForm() {
   const [folderName, setFolderName] = useState("");
@@ -21,7 +22,12 @@ export default function CreateFolderForm() {
 
     try {
       const folder = await CreateFolder(folderName);
-      setResult({ message: `Folder '${folder.name}' created successfully!` });
+      if (!folder.success) {
+        toast.error(folder.error)
+        return;
+      }
+      setResult({ message: `Folder '${folder.success.name}' created successfully!` });
+      toast.success("folder created succesfully")
     } catch (error) {
       setResult({ error: (error as Error).message });
     } finally {

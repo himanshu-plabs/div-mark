@@ -34,7 +34,7 @@ async function SearchBookmarks(tagsToSearch: string) {
         ],
       },
     });
-    return bookmarks;
+    return {success: bookmarks}
   } catch (error) {
     return {
       error:'failed to search'

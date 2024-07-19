@@ -218,7 +218,11 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
 
   const handleDeleteTag = async (tagToDelete: string) => {
     try {
-      await DeleteTag(bookmarkId, tagToDelete);
+      const response = await DeleteTag(bookmarkId, tagToDelete);
+      if (!response.success) { 
+        toast.error(response.error)
+        return;
+      }
       setTagArray((prevTags) => prevTags.filter((tag) => tag !== tagToDelete));
       toast.success("Tag deleted successfully");
     } catch (error) {

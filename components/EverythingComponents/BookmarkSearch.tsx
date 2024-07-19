@@ -7,7 +7,6 @@ import { Input } from "../ui/input";
 import logo from "@/public/logo.png";
 import Image from "next/image";
 import { toast } from "sonner";
-import { error } from "console";
 
 type UserRole = "ADMIN" | "USER";
 
@@ -66,17 +65,17 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
         try {
           const response = await SearchBookmarks(tags);
 
-          if ("error" in response) {
+          if (!response.success) {
             // Handle error case
             console.error("Error fetching bookmarks:", response.error);
-            toast.error("Failed to fetch bookmarks");
+            toast.error(response.error);
             setFilteredBookmarks([]);
             setLocalFilteredBookmarks([]);
           } else {
             // Handle success case
             setSearchString(true);
-            setFilteredBookmarks(response);
-            setLocalFilteredBookmarks(response);
+            setFilteredBookmarks(response.success);
+            setLocalFilteredBookmarks(response.success);
           }
         } catch (error) {
           console.error("Error fetching bookmarks:", error);
@@ -101,6 +100,7 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
         folderName,
         bookmarkIds
       );
+      
       if ("error" in response) {
         toast.error("Failed to create folder and add bookmarks");
         setIsOpen(false);

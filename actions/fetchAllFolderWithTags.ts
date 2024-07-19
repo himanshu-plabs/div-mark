@@ -11,6 +11,7 @@ export const fetchAllFoldersWithTags = async () => {
     
   }
   return await db.folder.findMany({
+    where: {userId},
     include: {
       bookmarks: {
         select: {

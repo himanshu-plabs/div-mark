@@ -36,7 +36,7 @@ export default function ScreenshotComponent() {
     setResult(null);
 
     try {
-      // Get HTML content and screenshot
+      
       const screenshotRes: ScreenshotResponse | ErrorResponse =
         await TakeScreenshot(url);
       await saveBookmark();
@@ -58,10 +58,15 @@ export default function ScreenshotComponent() {
   const saveBookmark = async () => {
     setBookmarkLoading(true);
     try {
-      await CreateBookmark({ url });
-      toast.success("Bookmark saved successfully!!!");
+      const response = await CreateBookmark({ url });
+      if (!response.message) {
+        toast.error(response.error);
+      }
+      toast.success(response.message);
+
       console.log(`Bookmark saved`);
     } catch (error) {
+      
       console.log(error);
     } finally {
       setBookmarkLoading(false);
