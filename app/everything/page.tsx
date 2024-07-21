@@ -11,6 +11,7 @@ import BookmarkModal from "@/components/EverythingComponents/BookmarkModal";
 import CreateFolderAndAddBookmarks from "@/actions/CreateFolderAndAddBookmarks";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { Bookmark, Folder } from "@/lib/schema";
+import { cn } from "@/lib/utils";
 
 const getRandomHeightMultiplier = () => {
   const multipliers = [1, 0.8, 1, 1.1, 1.2, 0.7, 1.3];
@@ -41,17 +42,20 @@ const EveryBookmark = () => {
   };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (bookmarkFormRef.current && !bookmarkFormRef.current.contains(event.target as Node)) {
+      if (
+        bookmarkFormRef.current &&
+        !bookmarkFormRef.current.contains(event.target as Node)
+      ) {
         handleBookmarkFormBlur();
       }
     };
 
     if (isBookmarkFormFocused) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isBookmarkFormFocused]);
 
@@ -128,9 +132,9 @@ const EveryBookmark = () => {
         rgba(20, 22, 30, 0.9) 100%
       )
     `,
-    pointerEvents: 'none' as const,
+    pointerEvents: "none" as const,
   };
- 
+
   return (
     <div className="bg-[#14161e] min-h-screen px-[80px]">
       <Navbar />
@@ -163,21 +167,28 @@ const EveryBookmark = () => {
         className="my-masonry-grid"
         columnClassName="my-masonry-grid_column"
       >
-        <div ref={bookmarkFormRef} className="relative z-20">
+        <div
+          ref={bookmarkFormRef}
+          className={cn(
+            "relative z-20 hover:ring-4 ring-[#33384e]   rounded-md mb-5",
+            {
+              "ring-4 ring-[#33384e]": isBookmarkFormFocused,
+            }
+          )}
+        >
           <BookmarkForm
             setBookmarks={setBookmarks}
             onFocus={handleBookmarkFormFocus}
-              onBlur={handleBookmarkFormBlur}
+            onBlur={handleBookmarkFormBlur}
           />
         </div>
-        
+
         {isLoading
           ? Array.from({ length: 10 }).map((_, index) => (
               <SkeletonCard key={index} />
             ))
           : displayedBookmarks.map((bookmark) => (
-            <div key={bookmark.id}>
-              
+              <div key={bookmark.id}>
                 <BookmarkModal
                   screenshot={bookmark.screenshot}
                   text={bookmark.text}
@@ -189,21 +200,24 @@ const EveryBookmark = () => {
                   tags={bookmark.tags}
                   bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
                   setBookmarks={setBookmarks}
+                  isFolder={false}
                 />
               </div>
             ))}
       </Masonry>
       {isBookmarkFormFocused && (
-          <>
-            {/* Overlay to the right */}
-            
-            {/* Overlay to the bottom */}
-            <div className="absolute top-[138px] left-0 right-0 bottom-0   z-10" style={overlayStyle} />
-            {/* Overlay to the left */}
-            
-          </>
-        )}
-      
+        <>
+          {/* Overlay to the right */}
+
+          {/* Overlay to the bottom */}
+          <div
+            className="absolute top-[138px] left-0 right-0 bottom-0   z-10"
+            style={overlayStyle}
+          />
+          {/* Overlay to the left */}
+        </>
+      )}
+
       {/* {isBookmarkFormActive && (
         <div className="fixed inset-0 bg-black bg-opacity-50  z-50">
           <div 

@@ -64,7 +64,7 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
   };
 
   return (
-    <form onSubmit={handleSubmit} className=" font-nunito mb-5">
+    <form onSubmit={handleSubmit} className=" font-nunito ">
       <div className=" aspect-square flex flex-col flex-grow p-5 pt-[14px] rounded-md bg-[#1e1f2a] "
       onFocus={onFocus}>
         <label

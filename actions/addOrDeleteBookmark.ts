@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 export async function addBookmarkToFolder(
   bookmarkId: number,
   folderId: number
@@ -18,6 +19,8 @@ export async function addBookmarkToFolder(
       where: { id: bookmarkId },
       data: { folderId: folderId },
     });
+    revalidatePath('/everything')
+    revalidatePath('/spaces/[folderId]')
     return { success: true };
   } catch (error) {
     console.error("Error adding bookmark to folder:", error);

@@ -102,7 +102,7 @@ const Spaces = () => {
           </div>
           <button
             onClick={() => setIsOpen(true)}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2  ml-4   px-3.5 py-2 rounded-full text-sm flex items-center transition-all duration-300 font-nunito hover:bg-[#2a2b38] border border-[#ff5924] mt-2 tracking-wider text-[#748297] "
+            className="absolute right-0 top-1/2 transform -translate-y-1/2  ml-4   px-3.5 py-1.5 rounded-full text-sm flex items-center transition-all duration-300 font-nunito hover:bg-[#2a2b38] border border-[#ff5924] mt-2 tracking-wider text-[#748297] "
           >
             CREATE SPACE
           </button>

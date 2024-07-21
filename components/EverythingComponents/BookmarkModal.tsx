@@ -433,7 +433,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                       onClose={() => setShowFolderSelector(false)}
                       BookmarkId={bookmarkId}
                       setBookmarks={setBookmarks}
-                      isFolder
+                      isFolder={isFolder}
                     />
                   </div>
                 )}

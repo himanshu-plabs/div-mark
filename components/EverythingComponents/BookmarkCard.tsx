@@ -108,16 +108,16 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ screenshot, title, descript
   const height = screenshot ? Math.floor(baseHeight * heightMultiplier) : undefined;
 
   return (
-    <div className="  shadow-md overflow-hidden ">
+    <div className="  shadow-md overflow-hidden  ">
       {screenshot ? (
         <>
-          <div className='relative aspect-video flex-grow '>
+          <div className='relative aspect-video flex-grow  '>
             <Image
               src={`data:image/png;base64,${screenshot}`}
               alt={title || "Bookmark"}
               layout="fill"
               objectFit="cover"
-              className='rounded-md'
+              className='rounded-md '
             />
           </div>
           <div className="p-2">
@@ -125,7 +125,7 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ screenshot, title, descript
           </div>
         </>
       ) : (
-        <div className="p-5 bg-[#1e1f2a] h-full flex flex-col justify-between rounded-md">
+        <div className="p-5 bg-[#1e1f2a] h-full flex flex-col justify-between rounded-md hover:ring-[3px] ring-inset ring-[#33384e]">
           <p className="text-[#748297]  text-sm font-nunito ">{description}</p>
           {/* <h3 className="text-lg font-semibold truncate">{title || "Untitled"}</h3> */}
         </div>
