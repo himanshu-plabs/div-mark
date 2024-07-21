@@ -1,6 +1,7 @@
 'use server';
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 
 export const fetchAllFoldersWithTags = async () => {
   const { userId } = auth();
@@ -40,6 +41,7 @@ export async function getFolders() {
       select: { id: true, name: true,createdAt: true},
       orderBy: { name: "asc" },
     });
+    revalidatePath("/everything")
     return folders;
   } catch (error) {
     console.error("Error fetching folders:", error);
@@ -128,3 +130,13 @@ export const getFoldersWithFirstBookmark = async () => {
     firstBookmark: folder.bookmarks[0] || null,
   }));
 };
+
+export const getFolderByBookmarkId = async (bookmarkId: number) => {
+  const { userId } = auth()
+  if (!userId) { 
+    return {
+      error:"Invalid user"
+    }
+  }
+ 
+}

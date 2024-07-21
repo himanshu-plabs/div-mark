@@ -427,9 +427,13 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                 {showFolderSelector && (
                   <div>
                     <FolderSelector
+                      folder={folder}
                       folders={folders}
                       onSelectFolder={handleAddToFolder}
                       onClose={() => setShowFolderSelector(false)}
+                      BookmarkId={bookmarkId}
+                      setBookmarks={setBookmarks}
+                      isFolder
                     />
                   </div>
                 )}

@@ -1,40 +1,84 @@
 // components/FolderSelector.tsx
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Bookmark, Folder } from "@/lib/schema";
+import { cn } from "@/lib/utils";
+import { getAllBookmarks } from "@/actions/getAllBookmarks";
+import { toast } from "sonner";
+import { getBookmarksByFolderId } from "@/actions/fetchAllFolderWithTags";
 
-interface Folder {
+interface Folders {
   id: number;
   name: string;
 }
 
 interface FolderSelectorProps {
-  folders: Folder[];
+  folder: Folder|null;
+  folders: Folders[];
   onSelectFolder: (folderId: number) => void;
   onClose: () => void;
+  BookmarkId: number;
+  setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  isFolder?: boolean;
 }
 
 const FolderSelector: React.FC<FolderSelectorProps> = ({
   folders,
   onSelectFolder,
   onClose,
+  folder,
+  BookmarkId,
+  setBookmarks,
+  isFolder
 }) => {
+  const fetchAllBookmarks = async() => {
+    if (isFolder && folder) {
+      const fetchedBookmarks = await getBookmarksByFolderId(Number(folder.id));
+      if ('error' in fetchedBookmarks) {
+        toast.error(`Error fetching bookmarks: ${fetchedBookmarks.error}`);
+        return;
+      }
+      if (!setBookmarks) {
+        toast.error("SetBookmarks function is not defined");
+        return;
+      }
+      setBookmarks(fetchedBookmarks);
+    } else {
+      const allBookmarks = await getAllBookmarks();
+      if ('error' in allBookmarks) {
+        toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+        return;
+      }
+      if (!setBookmarks) {
+        toast.error("SetBookmarks function is not defined");
+        return;
+      }
+      setBookmarks(allBookmarks);
+    }
+  }
   return (
-    <div className="absolute bottom-full left-0 w-full bg-[#1d1e28] p-4 rounded-lg shadow-lg mb-2">
-      <h3 className="text-[#a7b4c6] font-nunito mb-4">Select a Folder</h3>
-      <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
-        {folders.map((folder) => (
+    <div className="absolute bottom-full left-0 w-[232px] max-h-[100px] bg-[#14161e]  rounded-lg shadow-lg border-2 translate-x-[30px] overflow-y-scroll translate-y-[30px] ">
+      
+      <div className="flex flex-col  max-h-48 overflow-y-auto">
+        {folders.map((folde) => (
           <Button
-            key={folder.id}
-            onClick={() => onSelectFolder(folder.id)}
-            className="bg-[#242531] text-[#a7b4c6] hover:bg-[#2a2b38] justify-start"
+            key={folde.id}
+            onClick={() => {
+              onSelectFolder(folde.id) 
+            fetchAllBookmarks() 
+          }}
+            className="bg-[#14161e] text-[#a7b4c6] hover:bg-[#2a2b38] justify-start"
           >
-            {folder.name}
+            <span className={cn("rounded-full w-[14px] h-[14px] border-2 border-[#166ff4] mr-2 ", {
+              "bg-[#166ff4]": folde.id === folder?.id
+            })}></span>
+            {folde.name}
           </Button>
         ))}
       </div>
-      <Button onClick={onClose} className="mt-4 w-full bg-[#ff5924] hover:bg-[#ba3c11]">
+      {/* <Button onClick={onClose} className="mt-4 w-full bg-[#ff5924] hover:bg-[#ba3c11]">
         Cancel
-      </Button>
+      </Button> */}
     </div>
   );
 };

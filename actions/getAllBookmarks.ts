@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from 'next/navigation'
 
 export async function getAllBookmarks() {
@@ -25,12 +25,13 @@ export async function getAllBookmarks() {
         createdAt: 'desc' 
       }
     });
-
+    revalidatePath('/everything')
     return allBookmarksWithUserAndFolder;
+    
   } catch (error) {
     console.error("Error fetching bookmarks with user and folder:", error);
     throw error;
   }
 
-  revalidateTag('posts')
+  
 }
