@@ -8,9 +8,11 @@ import { toast } from "sonner";
 import { Bookmark, Folder } from "@/lib/schema";
 type BookmarkCardProps = {
   setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  onFocus: () => void;
+  onBlur: () => void;
 };
 
-const BookmarkForm = ({ setBookmarks }: BookmarkCardProps) => {
+const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => {
   const [text, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -63,7 +65,8 @@ const BookmarkForm = ({ setBookmarks }: BookmarkCardProps) => {
 
   return (
     <form onSubmit={handleSubmit} className=" font-nunito mb-5">
-      <div className=" aspect-square flex flex-col flex-grow p-5 pt-[14px] rounded-md bg-[#1e1f2a] ">
+      <div className=" aspect-square flex flex-col flex-grow p-5 pt-[14px] rounded-md bg-[#1e1f2a] "
+      onFocus={onFocus}>
         <label
           htmlFor="textarea"
           className="text-[#ff5924] text-xs tracking-widest "
@@ -76,6 +79,8 @@ const BookmarkForm = ({ setBookmarks }: BookmarkCardProps) => {
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Start typing here..."
+          onFocus={onFocus}
+          onBlur={onBlur}
           rows={4}
           className="w-full rounded-md border-none resize-none focus:ring-0 focus:outline-none bg-transparent placeholder-[#5f697e]   overflow-hidden"
           style={{

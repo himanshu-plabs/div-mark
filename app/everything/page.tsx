@@ -1,7 +1,7 @@
 // components/EveryBookmark.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Masonry from "react-masonry-css";
 import BookmarkForm from "@/components/EverythingComponents/BookmarkForm";
 import BookmarkSearch from "@/components/EverythingComponents/BookmarkSearch";
@@ -28,6 +28,32 @@ const EveryBookmark = () => {
   const [modal, setModal] = useState<boolean>(false);
   const [folderName, setFolderName] = useState<string>("");
   const [searchString, setSearchString] = useState<boolean>(false);
+  const [isBookmarkFormFocused, setIsBookmarkFormFocused] = useState(false);
+  const bookmarkFormRef = useRef<HTMLDivElement>(null);
+
+  // ... other useEffect hooks and functions
+  const handleBookmarkFormFocus = () => {
+    setIsBookmarkFormFocused(true);
+  };
+
+  const handleBookmarkFormBlur = () => {
+    setIsBookmarkFormFocused(false);
+  };
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (bookmarkFormRef.current && !bookmarkFormRef.current.contains(event.target as Node)) {
+        handleBookmarkFormBlur();
+      }
+    };
+
+    if (isBookmarkFormFocused) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isBookmarkFormFocused]);
 
   useEffect(() => {
     const newHeights = bookmarks.reduce((acc, bookmark) => {
@@ -42,8 +68,8 @@ const EveryBookmark = () => {
     const fetchBookmarks = async () => {
       try {
         const fetchedBookmarks = await getAllBookmarks();
-        
-        if ('error' in fetchedBookmarks) {
+
+        if ("error" in fetchedBookmarks) {
           // Handle error case
           setError(fetchedBookmarks.error);
           setBookmarks([]);
@@ -52,7 +78,9 @@ const EveryBookmark = () => {
           setBookmarks(fetchedBookmarks);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -89,6 +117,20 @@ const EveryBookmark = () => {
     500: 2,
   };
 
+  const overlayStyle = {
+    background: `
+      radial-gradient(
+        circle at top left,
+        rgba(20, 22, 30, 0) 0%,
+        rgba(20, 22, 30, 0.3) 25%,
+        rgba(20, 22, 30, 0.5) 50%,
+        rgba(20, 22, 30, 0.7) 75%,
+        rgba(20, 22, 30, 0.9) 100%
+      )
+    `,
+    pointerEvents: 'none' as const,
+  };
+ 
   return (
     <div className="bg-[#14161e] min-h-screen px-[80px]">
       <Navbar />
@@ -121,13 +163,21 @@ const EveryBookmark = () => {
         className="my-masonry-grid"
         columnClassName="my-masonry-grid_column"
       >
-        <BookmarkForm setBookmarks={setBookmarks} />
+        <div ref={bookmarkFormRef} className="relative z-20">
+          <BookmarkForm
+            setBookmarks={setBookmarks}
+            onFocus={handleBookmarkFormFocus}
+              onBlur={handleBookmarkFormBlur}
+          />
+        </div>
+        
         {isLoading
           ? Array.from({ length: 10 }).map((_, index) => (
               <SkeletonCard key={index} />
             ))
           : displayedBookmarks.map((bookmark) => (
-              <div key={bookmark.id}>
+            <div key={bookmark.id}>
+              
                 <BookmarkModal
                   screenshot={bookmark.screenshot}
                   text={bookmark.text}
@@ -143,6 +193,35 @@ const EveryBookmark = () => {
               </div>
             ))}
       </Masonry>
+      {isBookmarkFormFocused && (
+          <>
+            {/* Overlay to the right */}
+            
+            {/* Overlay to the bottom */}
+            <div className="absolute top-[138px] left-0 right-0 bottom-0   z-10" style={overlayStyle} />
+            {/* Overlay to the left */}
+            
+          </>
+        )}
+      
+      {/* {isBookmarkFormActive && (
+        <div className="fixed inset-0 bg-black bg-opacity-50  z-50">
+          <div 
+            ref={bookmarkFormRef}
+            className="mt-[179px] ml-[80px]"
+            style={{
+              position: 'absolute',
+              top: bookmarkFormRef.current?.offsetTop,
+              left: bookmarkFormRef.current?.offsetLeft,
+            }}
+          >
+            <BookmarkForm
+              setBookmarks={setBookmarks}
+              onFocus={() => setIsBookmarkFormActive(true)}
+            />
+          </div>
+        </div>
+      )} */}
     </div>
   );
 };
