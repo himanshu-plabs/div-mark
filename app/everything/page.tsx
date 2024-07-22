@@ -36,27 +36,27 @@ const EveryBookmark = () => {
   // ... other useEffect hooks and functions
   const handleBookmarkFormFocus = () => {
     setIsBookmarkFormFocused(true);
-    animateOverlay(0, 0.5, 300);
+    // animateOverlay(0, 0.5, 300);
   };
 
   const handleBookmarkFormBlur = () => {
     setIsBookmarkFormFocused(false);
-    animateOverlay(0.5, 0, 300);
+    // animateOverlay(0.5, 0, 300);
   };
 
-  const animateOverlay = (start: number, end: number, duration: number) => {
-    const startTime = performance.now();
-    const animate = (currentTime: number) => {
-      const elapsedTime = currentTime - startTime;
-      const progress = Math.min(elapsedTime / duration, 1);
-      const currentOpacity = start + (end - start) * progress;
-      setOverlayOpacity(currentOpacity);
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-    requestAnimationFrame(animate);
-  };
+  // const animateOverlay = (start: number, end: number, duration: number) => {
+  //   const startTime = performance.now();
+  //   const animate = (currentTime: number) => {
+  //     const elapsedTime = currentTime - startTime;
+  //     const progress = Math.min(elapsedTime / duration, 1);
+  //     const currentOpacity = start + (end - start) * progress;
+  //     setOverlayOpacity(currentOpacity);
+  //     if (progress < 1) {
+  //       requestAnimationFrame(animate);
+  //     }
+  //   };
+  //   requestAnimationFrame(animate);
+  // };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
