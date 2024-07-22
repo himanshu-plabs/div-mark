@@ -30,15 +30,32 @@ const EveryBookmark = () => {
   const [folderName, setFolderName] = useState<string>("");
   const [searchString, setSearchString] = useState<boolean>(false);
   const [isBookmarkFormFocused, setIsBookmarkFormFocused] = useState(false);
+  const [overlayOpacity, setOverlayOpacity] = useState(0);
   const bookmarkFormRef = useRef<HTMLDivElement>(null);
 
   // ... other useEffect hooks and functions
   const handleBookmarkFormFocus = () => {
     setIsBookmarkFormFocused(true);
+    animateOverlay(0, 0.5, 300);
   };
 
   const handleBookmarkFormBlur = () => {
     setIsBookmarkFormFocused(false);
+    animateOverlay(0.5, 0, 300);
+  };
+
+  const animateOverlay = (start: number, end: number, duration: number) => {
+    const startTime = performance.now();
+    const animate = (currentTime: number) => {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      const currentOpacity = start + (end - start) * progress;
+      setOverlayOpacity(currentOpacity);
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    requestAnimationFrame(animate);
   };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -126,13 +143,16 @@ const EveryBookmark = () => {
       radial-gradient(
         circle at top left,
         rgba(20, 22, 30, 0) 0%,
-        rgba(20, 22, 30, 0.3) 25%,
-        rgba(20, 22, 30, 0.5) 50%,
-        rgba(20, 22, 30, 0.7) 75%,
-        rgba(20, 22, 30, 0.9) 100%
+        rgba(20, 22, 30, 0.1) 20%,
+        rgba(20, 22, 30, 0.2) 40%,
+        rgba(20, 22, 30, 0.3) 60%,
+        rgba(20, 22, 30, 0.4) 80%,
+        rgba(20, 22, 30, 0.5) 100%
       )
     `,
-    pointerEvents: "none" as const,
+    opacity: overlayOpacity,
+    transition: 'opacity 0.3s ease-in-out',
+    pointerEvents: 'none' as const,
   };
 
   return (
@@ -170,7 +190,7 @@ const EveryBookmark = () => {
         <div
           ref={bookmarkFormRef}
           className={cn(
-            "relative z-20 hover:ring-4 ring-[#33384e]   rounded-md mb-5",
+            "relative z-20 hover:ring-4 ring-[#33384e] transition-all duration-100   rounded-md mb-5",
             {
               "ring-4 ring-[#33384e]": isBookmarkFormFocused,
             }
@@ -211,7 +231,7 @@ const EveryBookmark = () => {
 
           {/* Overlay to the bottom */}
           <div
-            className="absolute top-[138px] left-0 right-0 bottom-0   z-10"
+            className="absolute top-[138px] left-0 right-0 bottom-0 transition-all duration-100 ease-in   z-10"
             style={overlayStyle}
           />
           {/* Overlay to the left */}
