@@ -1,7 +1,5 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
 import CreateBookmark from "@/actions/CreateBookmark";
 import { getAllBookmarks } from "@/actions/getAllBookmarks";
 import { toast } from "sonner";

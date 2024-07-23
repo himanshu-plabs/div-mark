@@ -1,11 +1,8 @@
-// components/FolderSelector.tsx
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, Folder } from "@/lib/schema";
 import { cn } from "@/lib/utils";
-import { getAllBookmarks } from "@/actions/getAllBookmarks";
-import { toast } from "sonner";
-import { getBookmarksByFolderId } from "@/actions/fetchAllFolderWithTags";
+
 
 interface Folders {
   id: number;
