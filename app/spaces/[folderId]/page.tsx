@@ -10,7 +10,7 @@ import {
   getFolderById,
   updateFolderName,
 } from "@/actions/fetchAllFolderWithTags";
-import { CircleChevronLeft } from "lucide-react"; // Import Lucide icon
+import { CircleChevronLeft } from "lucide-react"; 
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { Bookmark, Folder } from "@/lib/schema";
 

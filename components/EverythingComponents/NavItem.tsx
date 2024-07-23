@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '../../lib/utils'; // Adjust the path if necessary
+import { cn } from '../../lib/utils';
 
 interface NavItemProps {
   href: string;

@@ -9,7 +9,7 @@ import { analyzeContentAndURL, generatTags } from "@/app/Tags/actions";
 import CreateBookmark from "@/actions/CreateBookmark";
 import { toast } from "sonner";
 
-// Define types for the responses
+
 type ScreenshotResponse = {
   screenshot?: string | undefined;
   html?: string | undefined;

@@ -1,6 +1,5 @@
-// components/Navbar.tsx
 import React from 'react';
-import NavItem from './NavItem'; // Adjust the path if necessary
+import NavItem from './NavItem';
 
 const navItems = [
   { href: '/everything', label: 'Everything' },
