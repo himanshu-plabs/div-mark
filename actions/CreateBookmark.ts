@@ -38,7 +38,7 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
       let folder;
       if (suitableFolderName) {
         folder = await db.folder.findFirst({
-          where: { name: suitableFolderName,userId },
+          where: { name: suitableFolderName, userId },
         });
       }
       console.log(suitableFolderName);
@@ -74,7 +74,7 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
     }
     const screenshotRes: ScreenshotResponse = await TakeScreenshot(url);
     if (screenshotRes.error) {
-      return {error: screenshotRes.error}
+      return { error: screenshotRes.error };
     }
 
     const screenshot = screenshotRes.ogImageBase64
@@ -83,7 +83,7 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
 
     const html = screenshotRes.html;
     const aspectRatio = screenshotRes.aspectRatio;
-    
+
     if (!html) {
       return { error: "failed to fetch html" };
     }
@@ -92,8 +92,7 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
     const title = tagsRes.title;
     if (!tags) {
       console.log("no tags");
-      return {error: "failed to generate tags"}
-      
+      return { error: "failed to generate tags" };
     }
     const folders = await fetchAllFoldersWithTags();
     if ("error" in folders) {
@@ -143,11 +142,12 @@ const CreateBookmark = async ({ url, Text }: CreateBookmarkProps) => {
       },
     });
     console.log("success");
-    return {message: "bookmark created successfully and added to suitable folder"}
-    
+    return {
+      message: "bookmark created successfully and added to suitable folder",
+    };
   } catch (error) {
     console.log(error);
-    return {error: "failed to create bookmark"}
+    return { error: "failed to create bookmark" };
   }
 };
 

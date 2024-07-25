@@ -9,7 +9,6 @@ import { analyzeContentAndURL, generatTags } from "@/app/Tags/actions";
 import CreateBookmark from "@/actions/CreateBookmark";
 import { toast } from "sonner";
 
-
 type ScreenshotResponse = {
   screenshot?: string | undefined;
   html?: string | undefined;
@@ -34,9 +33,11 @@ export default function ScreenshotComponent() {
     e.preventDefault();
     setLoading(true);
     setResult(null);
-
     try {
-      
+      if (!url.match(/^https?:\/\//i)) {
+        toast.error("Invalid URL");
+        return;
+      }
       const screenshotRes: ScreenshotResponse | ErrorResponse =
         await TakeScreenshot(url);
       await saveBookmark();
@@ -57,16 +58,16 @@ export default function ScreenshotComponent() {
 
   const saveBookmark = async () => {
     setBookmarkLoading(true);
+    toast.loading("Saving bookmark...");
     try {
       const response = await CreateBookmark({ url });
       if (!response.message) {
         toast.error(response.error);
       }
       toast.success(response.message);
-
+      setUrl("");
       console.log(`Bookmark saved`);
     } catch (error) {
-      
       console.log(error);
     } finally {
       setBookmarkLoading(false);
@@ -105,24 +106,17 @@ export default function ScreenshotComponent() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        {/* <Input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="Enter URL"
-        /> */}
-
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="Enter URL..."
+          placeholder="Enter Url"
           className="w-full placeholder-[#748297] focus:outline-none bg-transparent font-satisfy text-6xl pl-[6px] hover:placeholder-[#444c5c] text-[#748297] transition duration-300 ease-in-out"
           onKeyPress={(e) => e.key === "Enter" && handleSubmit(e)}
         />
         <div className="w-full h-[1px] bg-[#36373a] mt-[12px] mb-5"></div>
-        <Button type="submit" disabled={loading}>
-          {loading ? "Loading..." : "Fetch HTML"}
-        </Button>
+        {/* <Button type="submit" disabled={loading}>
+          {loading ? "Loading..." : "SAVE"}
+        </Button> */}
       </form>
       {/* {result?.error && <p>Error: {result.error}</p>}
       {result?.screenshot && (

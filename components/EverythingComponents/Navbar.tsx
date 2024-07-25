@@ -1,10 +1,10 @@
-import React from 'react';
-import NavItem from './NavItem';
+import React from "react";
+import NavItem from "./NavItem";
 
 const navItems = [
-  { href: '/everything', label: 'Everything' },
-  { href: '/spaces', label: 'Spaces' },
-  { href: '/serendipity', label: 'Serendipity' },
+  { href: "/", label: "Everything" },
+  { href: "/spaces", label: "Spaces" },
+  { href: "/serendipity", label: "Serendipity" },
 ];
 
 const Navbar: React.FC = () => {

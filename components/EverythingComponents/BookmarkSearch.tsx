@@ -9,7 +9,6 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { Bookmark, Folder } from "@/lib/schema";
 
-
 interface BookmarkSearchProps {
   setFilteredBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   setSearchString: React.Dispatch<React.SetStateAction<boolean>>;
@@ -67,7 +66,7 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
         folderName,
         bookmarkIds
       );
-      
+
       if ("error" in response) {
         toast.error("Failed to create folder and add bookmarks");
         setIsOpen(false);
@@ -84,7 +83,7 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
   };
 
   return (
-    <div className="mx-auto pt-1">
+    <div className="">
       <div className="relative w-full mb-4">
         <input
           value={tags}

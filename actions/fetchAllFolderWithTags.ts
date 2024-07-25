@@ -1,4 +1,4 @@
-'use server';
+"use server";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -6,13 +6,12 @@ import { revalidatePath } from "next/cache";
 export const fetchAllFoldersWithTags = async () => {
   const { userId } = auth();
   if (!userId) {
-    return{
-      error: "Invalid user"
-    }
-    
+    return {
+      error: "Invalid user",
+    };
   }
   return await db.folder.findMany({
-    where: {userId},
+    where: { userId },
     include: {
       bookmarks: {
         select: {
@@ -28,20 +27,19 @@ export const fetchAllFoldersWithTags = async () => {
 export async function getFolders() {
   const { userId } = auth();
   if (!userId) {
-    return{
-      error: "Invalid user"
-    }
-    
+    return {
+      error: "Invalid user",
+    };
   }
   try {
     const folders = await db.folder.findMany({
       where: {
-        userId
+        userId,
       },
-      select: { id: true, name: true,createdAt: true},
+      select: { id: true, name: true, createdAt: true },
       orderBy: { name: "asc" },
     });
-    revalidatePath("/everything")
+    revalidatePath("/");
     return folders;
   } catch (error) {
     console.error("Error fetching folders:", error);
@@ -52,14 +50,13 @@ export async function getFolders() {
 export async function getBookmarksByFolderId(folderId: number) {
   const { userId } = auth();
   if (!userId) {
-    return{
-      error: "Invalid user"
-    }
-    
+    return {
+      error: "Invalid user",
+    };
   }
   try {
     const bookmarks = await db.bookmark.findMany({
-      where: { folderId,userId },
+      where: { folderId, userId },
       select: {
         id: true,
         title: true,
@@ -72,7 +69,6 @@ export async function getBookmarksByFolderId(folderId: number) {
         folder: true,
         aspectRatio: true,
       },
-      
     });
     return bookmarks;
   } catch (error) {
@@ -85,7 +81,7 @@ export async function getFolderById(folderId: number) {
   try {
     const folder = await db.folder.findUnique({
       where: { id: folderId },
-      select: { id: true, name: true, createdAt: true,userId: true},
+      select: { id: true, name: true, createdAt: true, userId: true },
     });
     return folder;
   } catch (error) {
@@ -109,13 +105,12 @@ export async function updateFolderName(folderId: number, newName: string) {
 export const getFoldersWithFirstBookmark = async () => {
   const { userId } = auth();
   if (!userId) {
-    return{
-      error: "Invalid user"
-    }
-    
+    return {
+      error: "Invalid user",
+    };
   }
   const folders = await db.folder.findMany({
-    where:{userId},
+    where: { userId },
     include: {
       bookmarks: {
         take: 1,
@@ -123,7 +118,7 @@ export const getFoldersWithFirstBookmark = async () => {
     },
   });
 
-  return folders.map(folder => ({
+  return folders.map((folder) => ({
     id: folder.id,
     name: folder.name,
     createdAt: folder.createdAt,
@@ -132,11 +127,10 @@ export const getFoldersWithFirstBookmark = async () => {
 };
 
 export const getFolderByBookmarkId = async (bookmarkId: number) => {
-  const { userId } = auth()
-  if (!userId) { 
+  const { userId } = auth();
+  if (!userId) {
     return {
-      error:"Invalid user"
-    }
+      error: "Invalid user",
+    };
   }
- 
-}
+};

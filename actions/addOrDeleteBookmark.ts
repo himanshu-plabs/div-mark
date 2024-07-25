@@ -9,18 +9,17 @@ export async function addBookmarkToFolder(
 ) {
   const { userId } = auth();
   if (!userId) {
-    return{
-      error: "Invalid user"
-    }
-    
+    return {
+      error: "Invalid user",
+    };
   }
   try {
     await db.bookmark.update({
       where: { id: bookmarkId },
       data: { folderId: folderId },
     });
-    revalidatePath('/everything')
-    revalidatePath('/spaces/[folderId]')
+    revalidatePath("/");
+    revalidatePath("/spaces/[folderId]");
     return { success: true };
   } catch (error) {
     console.error("Error adding bookmark to folder:", error);
@@ -29,13 +28,13 @@ export async function addBookmarkToFolder(
 }
 
 export async function deleteBookmark(bookmarkId: number) {
-    try {
-      await db.bookmark.delete({
-        where: { id: bookmarkId },
-      })
-      return { success: true }
-    } catch (error) {
-      console.error('Error deleting bookmark:', error)
-      return { success: false, error: 'Failed to delete bookmark' }
-    }
+  try {
+    await db.bookmark.delete({
+      where: { id: bookmarkId },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting bookmark:", error);
+    return { success: false, error: "Failed to delete bookmark" };
   }
+}
