@@ -201,8 +201,7 @@ export async function analyzeContentAndURL(
   url: string,
   html: string
 ): Promise<Schema> {
-  try {
-    const prompt = `
+  const prompt = `
     Analyze the following HTML content and URL to generate relevant tags and a concise title. The content may be truncated.
     URL: ${url}
     HTML: ${html}
@@ -221,34 +220,29 @@ export async function analyzeContentAndURL(
     - Aim improve findability
     Remember, the goal is to create tags that would help a user easily find and identify this bookmark in a large collection.
     `;
-    const jsonSchema = JSON.stringify(schema, null, 4);
-    const chat_completion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are an intelligent assistant that generates tags and concise titles based on given HTML content and URL. The JSON object must use the schema: ${jsonSchema}`,
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      model: "llama3-70b-8192",
-      temperature: 0,
-      stream: false,
-      response_format: { type: "json_object" },
-    });
-    const content = chat_completion.choices[0].message.content;
-    if (!content) {
-      throw new Error(
-        "Received null or undefined content from chat completion"
-      );
-    }
-    const result: Schema = JSON.parse(content);
-    return result;
-  } catch (error) {
-    return { error: "failed to generate tags" };
+  const jsonSchema = JSON.stringify(schema, null, 4);
+  const chat_completion = await groq.chat.completions.create({
+    messages: [
+      {
+        role: "system",
+        content: `You are an intelligent assistant that generates tags and concise titles based on given HTML content and URL. The JSON object must use the schema: ${jsonSchema}`,
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    model: "llama3-70b-8192",
+    temperature: 0,
+    stream: false,
+    response_format: { type: "json_object" },
+  });
+  const content = chat_completion.choices[0].message.content;
+  if (!content) {
+    throw new Error("Received null or undefined content from chat completion");
   }
+  const result: Schema = JSON.parse(content);
+  return result;
 }
 
 //Example usage
